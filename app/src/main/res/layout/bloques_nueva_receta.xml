@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:minHeight="80dp"
+    android:maxHeight="90dp"
+    android:background="?attr/colorSecondary">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_percent="0.98"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2.5"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:background="?attr/android:colorBackground">
+
+            <EditText
+                android:id="@+id/ingrediente"
+                android:layout_width="250dp"
+                android:layout_height="35dp"
+                android:hint="ingrediente"
+                android:background="@drawable/edittext_border_selector"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.5"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginLeft="3dp"
+            android:background="?attr/android:colorBackground">
+
+            <EditText
+                android:id="@+id/cantidad"
+                android:layout_width="100dp"
+                android:layout_height="35dp"
+                android:hint="cantidad"
+                android:background="@drawable/edittext_border_selector"
+                android:inputType="number"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/quitar"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.4"
+            android:layout_marginLeft="3dp"
+            android:background="#E3393E"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/borrar"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

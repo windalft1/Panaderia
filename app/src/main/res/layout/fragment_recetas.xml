@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".recetas"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <FrameLayout
+        android:id="@+id/icon_mas_recetas"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="end|top"
+        android:layout_marginTop="0dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@drawable/circular_background"
+        android:contentDescription="nueva receta"
+        android:elevation="10dp">
+
+        <ImageView
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/mas_blanco"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginBottom="3dp"
+        android:paddingBottom="6dp"
+        android:background="?attr/colorSecondary">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="2.8"
+            android:text="Recetas"
+            android:gravity="center"
+            android:background="?attr/android:colorBackground"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.2"
+            android:text="porciones"
+            android:paddingLeft="30dp"
+            android:layout_marginLeft="3dp"
+            android:gravity="center_vertical"
+            android:background="?attr/android:colorBackground"/>
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="40dp"
+        android:layout_marginTop="45dp">
+
+        <LinearLayout
+            android:id="@+id/containerRecetas"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!--bloque de receta-->
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</FrameLayout>

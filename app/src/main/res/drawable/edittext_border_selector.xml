@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Cuando el EditText está enfocado -->
+    <item android:state_focused="true" android:drawable="@drawable/redondo_con_foco" />
+    <!-- Estado normal -->
+    <item android:drawable="@drawable/redondo_sin_foco" />
+</selector>

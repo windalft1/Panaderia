@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Colores base para el tema oscuro -->
+    <color name="md_theme_light_primary">#FFB880</color> <!-- En modo noche, usamos un tono más claro -->
+    <color name="md_theme_light_onPrimary">#4D2600</color>
+    <color name="md_theme_light_background">#201A17</color> <!-- Fondo principal oscuro -->
+    <color name="md_theme_light_surface">#201A17</color> <!-- Superficie oscura -->
+    <color name="md_theme_light_onBackground">#EBE0DB</color> <!-- Texto claro sobre fondo oscuro -->
+    <color name="md_theme_light_onSurface">#EBE0DB</color> <!-- Texto claro sobre superficie oscura -->
+    <color name="md_theme_light_shadow">#8C857E</color> <!-- sombras -->
+    <color name="md_theme_light_extra">#D4C8BE</color> <!-- extra1 -->
+    <color name="md_theme_light_mas1">#FFB86A</color> <!-- mas1 -->
+    <color name="md_theme_light_mas2">#FFBC94</color> <!-- mas2 -->
+    <color name="md_theme_light_mas3">#E8A674</color> <!-- mas3 -->
+    <color name="md_theme_light_select">#54443D</color> <!-- select -->
+</resources>

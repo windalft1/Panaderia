@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 1. El DrawerLayout es el nuevo contenedor raíz -->
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:openDrawer="start"> <!-- Esta línea es solo para la vista previa en el editor -->
+    
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context=".MainActivity">
+
+            <FrameLayout
+                android:id="@+id/cabezera"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/topAppBar2"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:layout_marginTop="3dp"
+                    android:background="?attr/colorSecondary"
+                    style="@style/Widget.MaterialComponents.Toolbar.Primary" />
+
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/topAppBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="?attr/colorPrimary"
+                    app:titleCentered="true"
+                    app:titleTextColor="?attr/colorOnPrimary"
+                    style="@style/Widget.MaterialComponents.Toolbar.Primary" />
+
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/topAppBar3"
+                    android:layout_width="80dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="end"
+                    android:background="?attr/colorPrimary"
+                    android:layout_marginTop="3dp"
+                    android:elevation="20dp"
+                    android:visibility="gone"/>
+
+            </FrameLayout>
+
+            <!-- Contenedor del contenido (puede ser tu FragmentContainerView o un layout normal) -->
+            <FrameLayout
+                android:id="@+id/fragment_container"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="?attr/android:colorBackground">
+
+                <LinearLayout
+                    android:id="@+id/opciones"
+                    android:elevation="10dp"
+                    android:layout_gravity="end|bottom"
+                    android:layout_width="90dp"
+                    android:layout_height="90dp"
+                    android:background="@drawable/circulo_completo"
+                    android:backgroundTint="?attr/colorPrimary"
+                    android:gravity="center"
+                    android:layout_marginRight="50dp"
+                    android:layout_marginBottom="50dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <View
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:background="@drawable/mas_blanco"/>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/opcion1"
+                    android:elevation="10dp"
+                    android:layout_gravity="end|bottom"
+                    android:layout_width="80dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/boton1"
+                    android:backgroundTint="?attr/colorOnTertiary"
+                    android:gravity="center"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:layout_marginRight="55dp"
+                    android:layout_marginBottom="160dp"
+                    android:text="Pedido"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/opcion2"
+                    android:elevation="10dp"
+                    android:layout_gravity="end|bottom"
+                    android:layout_width="80dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/boton1"
+                    android:backgroundTint="?attr/colorOnTertiaryContainer"
+                    android:gravity="center"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:layout_marginRight="55dp"
+                    android:layout_marginBottom="210dp"
+                    android:text="Moje"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:visibility="gone"/>
+                <TextView
+
+                    android:id="@+id/opcion3"
+                    android:elevation="10dp"
+                    android:layout_gravity="end|bottom"
+                    android:layout_width="80dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/boton1"
+                    android:backgroundTint="?attr/colorOnTertiaryFixed"
+                    android:gravity="center"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:layout_marginRight="55dp"
+                    android:layout_marginBottom="260dp"
+                    android:text="Tiempo"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:visibility="gone"/>
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+
+        <!-- contenedor bloques oculto -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/contenedorOculto"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#C4C4C4"
+                android:alpha="0.5"/>
+            
+            <LinearLayout
+                android:id="@+id/caja1"
+                android:orientation="vertical"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintWidth_percent="0.7"
+                app:layout_constraintHeight_percent="0.7"
+                android:background="@drawable/bordes_algo_redondos">
+
+                <!-- parte de arriba donde se escribe el numero de mojes-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:background="@drawable/bordes_circulo_arriba"
+                    android:orientation="vertical"
+                    android:gravity="center">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="?attr/colorOnPrimary"
+                        android:text="Mojes"
+                        android:textSize="30sp"
+                        android:layout_marginBottom="15dp"
+                        android:gravity="center"/>
+
+                    <EditText
+                        android:id="@+id/cantidadMojes"
+                        android:layout_width="100dp"
+                        android:layout_height="35dp"
+                        android:background="@drawable/edittext_border_selector"
+                        android:inputType="number"
+                        android:gravity="center"/>
+
+                </LinearLayout>
+
+                <!--parte donde iran las recetas segun el archivo leido-->
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+
+                    <LinearLayout
+                        android:id="@+id/cajaRecetas"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@drawable/bordes_circulo_abajo">
+
+                    </LinearLayout>
+
+                </ScrollView>
+
+                <!--boton de guardado-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="80dp"
+                    android:gravity="center">
+
+                    <TextView
+                        android:id="@+id/enviarMoje"
+                        android:layout_width="120dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/redondo_sin_foco"
+                        android:backgroundTint="?attr/colorOnTertiaryContainer"
+                        android:textColor="?attr/colorOnPrimary"
+                        android:gravity="center"
+                        android:textSize="20dp"
+                        android:text="Confirmar"/>
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+            <!--boton de cerrar mojes-->
+            <LinearLayout
+                android:id="@+id/cerrarMojes"
+                app:layout_constraintTop_toBottomOf="@id/caja1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:background="@drawable/circulo_completo"
+                android:backgroundTint="?attr/colorOnTertiaryContainer"
+                android:gravity="center"
+                android:layout_marginTop="30dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:rotation="45">
+
+                <View
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="@drawable/mas_blanco"/>
+
+            </LinearLayout>
+            
+        </androidx.constraintlayout.widget.ConstraintLayout>
+        
+    </FrameLayout>
+
+    <!-- 3. El menú que se deslizará (AHORA ES UN LINEARLAYOUT CON CONTENIDO) -->
+    <LinearLayout
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:orientation="vertical"
+        android:background="?android:attr/colorBackground">
+
+        <!-- Cabecera del menú (opcional pero recomendada) -->
+        <include layout="@layout/nav_header_main" />
+
+        <!-- Menú Superior -->
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/navigation_view_top"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:menu="@menu/navigation_drawer_menu_top"
+            app:itemShapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.Cuadrado"
+            app:itemShapeAppearance="@style/ShapeAppearanceOverlay.App.Cuadrado"/>
+
+        <!-- Espaciador que empuja el menú inferior hacia abajo -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- Menú Inferior -->
+        <!-- Menú Inferior (AHORA ES UN LAYOUT PERSONALIZADO) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"       android:gravity="end|center_vertical"
+            android:padding="16dp">
+
+            <!-- Icono para el Modo Oscuro -->
+            <ImageView
+                android:id="@+id/icon_dark_mode"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/ic_dark_mode"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Activar modo oscuro" />
+
+            <!-- Icono para el Modo Claro -->
+            <ImageView
+                android:id="@+id/icon_light_mode"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_light_mode"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:contentDescription="Activar modo claro" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.drawerlayout.widget.DrawerLayout>

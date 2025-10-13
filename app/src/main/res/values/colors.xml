@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Colores base para el tema claro -->
+    <color name="md_theme_light_primary">#8F4C00</color> <!-- Un marrón principal -->
+    <color name="md_theme_light_onPrimary">#FFFFFF</color> <!-- Texto sobre el color primario -->
+    <color name="md_theme_light_background">#FFFBFF</color> <!-- Fondo principal de la app -->
+    <color name="md_theme_light_surface">#FFFBFF</color> <!-- Superficie de las "cards" o menús -->
+    <color name="md_theme_light_onBackground">#201A17</color> <!-- Texto sobre el fondo -->
+    <color name="md_theme_light_onSurface">#201A17</color> <!-- Texto sobre las superficies -->
+    <color name="md_theme_light_shadow">#B5AC98</color> <!-- sombras -->
+    <color name="md_theme_light_extra">#D9CEB6</color> <!-- extra1 -->
+    <color name="md_theme_light_mas1">#8A4900</color> <!-- mas1 -->
+    <color name="md_theme_light_mas2">#B86200</color> <!-- mas2 -->
+    <color name="md_theme_light_mas3">#5E3200</color> <!-- mas3 -->
+    <color name="md_theme_light_select">#E6E6E6</color> <!-- select -->
+
+
+    <!-- Puedes añadir más colores específicos de tu marca aquí -->
+</resources>
+    

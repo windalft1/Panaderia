@@ -1,0 +1,31 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Tema base de la aplicación.
+         El "parent" Theme.Material3.DayNight.NoActionBar es el que hace la magia
+         de cambiar entre modo claro y oscuro. -->
+    <style name="Theme.Panaderia" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <!-- AQUÍ ESTÁN LOS CAMBIOS -->
+        <!-- Le decimos al tema qué colores usar para cada cosa. -->
+        <!-- En modo claro, usará los colores de "values/colors.xml" -->
+        <!-- En modo oscuro, automáticamente usará los colores de "values-night/colors.xml" -->
+
+        <!-- Colores primarios (para la Toolbar, etc.) -->
+        <item name="colorPrimary">@color/md_theme_light_primary</item>
+        <item name="colorSecondary">@color/md_theme_light_shadow</item>
+        <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
+        <item name="colorAccent">@color/md_theme_light_extra</item>
+        <item name="colorOnTertiary">@color/md_theme_light_mas1</item>
+        <item name="colorOnTertiaryContainer">@color/md_theme_light_mas2</item>
+        <item name="colorOnTertiaryFixed">@color/md_theme_light_mas3</item>
+
+        <!-- Colores de fondo y superficies (el fondo de la app, cards, menús...) -->
+        <item name="android:colorBackground">@color/md_theme_light_background</item>
+        <item name="colorSurface">@color/md_theme_light_surface</item>
+        <item name="colorOnBackground">@color/md_theme_light_onBackground</item>
+        <item name="colorOnSurface">@color/md_theme_light_onSurface</item>
+        <item name="colorOutline">@color/md_theme_light_select</item>
+
+
+
+    </style>
+</resources>
