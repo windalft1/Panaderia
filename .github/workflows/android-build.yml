@@ -3,7 +3,7 @@ name: Build Android APK
 on:
   push:
     branches:
-      - main  # o 'master', según tu rama
+      - master  # o 'master', según tu rama
   pull_request:
 
 jobs:
