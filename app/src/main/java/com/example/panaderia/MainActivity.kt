@@ -262,7 +262,7 @@ class MainActivity : AppCompatActivity() {
         val oculto = findViewById<ConstraintLayout>(R.id.contenedorOculto)
         val cajaOculto = findViewById<LinearLayout>(R.id.caja1)
         btn2.setOnClickListener{
-            if (viewModel2.moje.isEmpty()){
+            if (viewModel.receta.isNullOrEmpty()){
                 AlertDialog.Builder(this)
                     .setMessage("No hay recetas aun")
                     .setNegativeButton("Ok") { dialog, _ ->
