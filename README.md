@@ -78,11 +78,20 @@ The app stores data in JSON files within the app's internal storage:
 
 ## Development in Replit
 
-⚠️ **Note**: This is an Android application that cannot run directly in Replit's web environment. Replit does not support Android emulators. You can:
-- View and edit the source code
-- Modify layouts and resources
-- Manage the project structure
-- Review and refactor code
+⚠️ **Note**: This is an Android application that cannot run directly in Replit's web environment. Replit does not support Android emulators. 
+
+### What You Can Do in Replit:
+- ✅ View and edit the source code
+- ✅ Modify layouts and resources
+- ✅ Manage the project structure
+- ✅ Review and refactor code
+- ✅ Validate project configuration with Gradle
+
+### What You Cannot Do in Replit:
+- ❌ Run the Android app (no emulator support)
+- ❌ Test UI functionality
+- ❌ Debug runtime behavior
+- ❌ Install or test APK files
 
 For actual testing and execution, use Android Studio on a local machine.
 
