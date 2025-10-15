@@ -90,7 +90,10 @@ The app uses local JSON files stored in the app's internal storage:
 
 ## Recent Changes
 - **2025-10-15**: Project imported to Replit from GitHub
-- Documentation created for project understanding
+  - Created comprehensive documentation (README.md, replit.md)
+  - Set up informational workflow displaying project structure
+  - Installed Java/Gradle tooling for future development needs
+  - Configured environment for code editing and review
 
 ## User Preferences
 - None specified yet
