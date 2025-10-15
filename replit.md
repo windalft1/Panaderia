@@ -54,19 +54,39 @@ The app uses local JSON files stored in the app's internal storage:
 2. Android apps require specific hardware/emulator to run
 3. The project is designed for mobile devices, not web browsers
 
-## How to Work With This Project
+## How to Work With This Project in Replit
 
-### Option 1: Build APK (if Android SDK tools available)
-If Android SDK is available, you could build an APK file, but this would require significant tooling setup.
+### What You Can Do in Replit
+- **View and Edit Code**: Browse and modify Kotlin source files
+- **Update Resources**: Edit layouts (XML), drawables, and string resources
+- **Validate Project**: The workflow runs Gradle validation to check project structure
+- **Review Dependencies**: Examine build.gradle.kts files and dependency configuration
 
-### Option 2: View and Edit Code
-You can browse and edit the Kotlin source code, modify layouts, update resources, and manage the project structure in Replit, but cannot run the app.
+### What You Cannot Do in Replit
+- Run the Android app (no emulator support)
+- Test UI functionality
+- Debug runtime behavior
+- Install the APK
 
-### Option 3: Development on Local Machine
-To properly develop and test this app:
+## How to Actually Run This App
+
+### Local Development (Recommended)
 1. Clone this repository to your local machine
 2. Open in Android Studio
-3. Run on an Android emulator or physical device
+3. Sync Gradle files
+4. Run on an Android emulator or physical device
+
+### Build Commands (Local Machine)
+```bash
+# Build debug APK
+./gradlew assembleDebug
+
+# Build release APK  
+./gradlew assembleRelease
+
+# Run tests
+./gradlew test
+```
 
 ## Recent Changes
 - **2025-10-15**: Project imported to Replit from GitHub
