@@ -85,7 +85,7 @@ The app stores data in JSON files within the app's internal storage:
 - ✅ Modify layouts and resources
 - ✅ Manage the project structure
 - ✅ Review and refactor code
-- ✅ Validate project configuration with Gradle
+- ✅ View project information and structure
 
 ### What You Cannot Do in Replit:
 - ❌ Run the Android app (no emulator support)

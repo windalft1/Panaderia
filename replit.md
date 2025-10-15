@@ -59,7 +59,7 @@ The app uses local JSON files stored in the app's internal storage:
 ### What You Can Do in Replit
 - **View and Edit Code**: Browse and modify Kotlin source files
 - **Update Resources**: Edit layouts (XML), drawables, and string resources
-- **Validate Project**: The workflow runs Gradle validation to check project structure
+- **View Project Info**: The workflow displays project structure and build instructions
 - **Review Dependencies**: Examine build.gradle.kts files and dependency configuration
 
 ### What You Cannot Do in Replit
