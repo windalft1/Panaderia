@@ -30,26 +30,52 @@ import androidx.core.content.ContextCompat
 import android.graphics.Color
 import androidx.constraintlayout.widget.ConstraintLayout
 import android.widget.EditText
+import androidx.core.widget.addTextChangedListener
+import androidx.core.view.children
+import kotlin.collections.mutableMapOf
+import android.view.MotionEvent
+import android.view.inputmethod.InputMethodManager
+import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
+import android.view.animation.DecelerateInterpolator
+import android.view.animation.AccelerateInterpolator
 
 data class Ingrediente(
     val ingrediente: String,
     val cantidad: String
 )
+data class IngredienteMoje(
+    val ingrediente: String,
+    val cantidad: String,
+    var tachado: Boolean
+)
 
 data class Receta(
     val nombre: String,
     val porciones: String, // 👈 cambia a String porque en el JSON está entre comillas
+    val instrucciones: String,
     val ingredientes: List<Ingrediente>
+)
+data class Moje(
+    val nombre: String,
+    val moje: String, // 👈 cambia a String porque en el JSON está entre comillas
+    val ingredientes: List<IngredienteMoje>
 )
 
 // El archivo JSON tiene un array de objetos con una propiedad "receta"
 data class RecetaWrapper(
     val receta: Receta
 )
+data class MojeWrapper(
+    val moje: Moje
+)
 
 // 👇 2️⃣ ViewModel (también afuera del fragment)
 class RecetasViewModel : ViewModel() {
     var receta: List<Receta>? = null
+}
+class MojeViewModel : ViewModel() {
+    var moje: MutableList<Moje> = mutableListOf()
 }
 class MainActivity : AppCompatActivity() {
 
@@ -58,14 +84,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var themeManager: ThemeManager
 
     private lateinit var viewModel: RecetasViewModel
-    private lateinit var viewModel2: RecetasViewModel
+    private lateinit var viewModel2: MojeViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // 🔹 Crear o recuperar el ViewModel clásico
         viewModel = ViewModelProvider(this)[RecetasViewModel::class.java]
-        viewModel2 = ViewModelProvider(this)[RecetasViewModel::class.java]
+        viewModel2 = ViewModelProvider(this)[MojeViewModel::class.java]
 
         // 🔹 Leer JSON solo si no se ha cargado antes y da vacio si no hay recetas
         try {
@@ -90,23 +116,23 @@ class MainActivity : AppCompatActivity() {
         Log.d("LecturaJSON", "ViewModel cargado con ${viewModel.receta?.size} recetas. Contenido: ${viewModel.receta}")
 
         try {
-            if (viewModel2.receta == null) {
-                /*val json = assets.open("recetas.json")
-                    .bufferedReader()
-                    .use { it.readText() }*/
-                val file = File(filesDir, "mojes.json")
-                val json = file.readText()
-                if (!file.exists()) {
-                    Log.d("LecturaJSON", "No se encontró el archivo")
-                }else{
-                    Log.d("LecturaJSON", "Se encontró el archivo $json")
-                }
-                val gson = Gson()
-                val respuesta = gson.fromJson(json, Array<RecetaWrapper>::class.java).toList()
-                viewModel2.receta = respuesta.map { it.receta }
+            /*val json = assets.open("recetas.json")
+                .bufferedReader()
+                .use { it.readText() }*/
+            val file = File(filesDir, "mojes.json")
+            val json = file.readText()
+            if (!file.exists()) {
+                Log.d("LecturaJSON", "No se encontró el archivo")
+            }else{
+                Log.d("LecturaJSON", "Se encontró el archivo $json")
             }
+            val gson = Gson()
+            val respuesta = gson.fromJson(json, Array<MojeWrapper>::class.java).toList()
+            viewModel2.moje.clear()
+            viewModel2.moje.addAll(respuesta.map { it.moje })
         }catch (e: Exception){
-            viewModel2.receta = emptyList()
+            Log.e("LecturaJSON", "Error leyendo JSON", e)
+            viewModel2.moje.clear() // lista vacía si hay error
         }
 
 
@@ -196,6 +222,7 @@ class MainActivity : AppCompatActivity() {
             when (fragmentActual) {
                 is pedidos -> navigationViewTop.setCheckedItem(R.id.nav_pedidos)
                 is recetas -> navigationViewTop.setCheckedItem(R.id.nav_recetas)
+                is mojes -> navigationViewTop.setCheckedItem(R.id.nav_mojes_tiempos)
                 is nueva_receta -> navigationViewTop.setCheckedItem(R.id.oculto1)//marca el item oculto para que paresca que no hay nada marcado
             }
         }
@@ -229,24 +256,46 @@ class MainActivity : AppCompatActivity() {
 
         //cargar recetas en el contenedor invisible
         val menuLayout = findViewById<LinearLayout>(R.id.cajaRecetas)
-        updateMenu(menuLayout)
+        updateMenu()
 
         //boton de mojes
         val oculto = findViewById<ConstraintLayout>(R.id.contenedorOculto)
+        val cajaOculto = findViewById<LinearLayout>(R.id.caja1)
         btn2.setOnClickListener{
+            if (viewModel2.moje.isEmpty()){
+                AlertDialog.Builder(this)
+                    .setMessage("No hay recetas aun")
+                    .setNegativeButton("Ok") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+                    .show()
+                return@setOnClickListener
+            }
             btn1.visibility = View.GONE
             btn2.visibility = View.GONE
             btn3.visibility = View.GONE
             btnPrincipal.visibility = View.GONE
             btnPrincipal.rotation = 0f
             menuAbierto = false
+            //oculto.visibility = View.VISIBLE
             oculto.visibility = View.VISIBLE
+            cajaOculto.scaleX = 0.8f
+            cajaOculto.scaleY = 0.8f
+            cajaOculto.alpha = 0f
+
+
+            cajaOculto.animate()
+                .scaleX(1f)
+                .scaleY(1f)
+                .alpha(1f)
+                .setDuration(200)
+                .setInterpolator(OvershootInterpolator()) // pequeño rebote
+                .start()
         }
 
         //boton de cerrar mojes
         val cerrarMojes = findViewById<LinearLayout>(R.id.cerrarMojes)
         cerrarMojes.setOnClickListener{
-            oculto.visibility = View.GONE
             btnPrincipal.visibility = View.VISIBLE
             val typedValue = android.util.TypedValue()
             theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
@@ -255,20 +304,99 @@ class MainActivity : AppCompatActivity() {
                 child.setBackgroundColor(typedValue.data)
                 child.tag = false
             }
+
+            cajaOculto.animate()
+                .scaleX(0.8f)
+                .scaleY(0.8f)
+                .alpha(0f)
+                .setDuration(150)
+                .setInterpolator(AccelerateInterpolator()) // acelera al final
+                .withEndAction {
+                    cajaOculto.scaleX = 1f  // restaurar para la próxima vez
+                    cajaOculto.scaleY = 1f
+                    cajaOculto.alpha = 1f
+                    oculto.visibility = View.GONE
+                }
+                .start()
+        }
+
+        //listener para cambiar el texto al editar la cantidad de mojes
+        val cantidad = findViewById<EditText>(R.id.cantidadMojes)
+        cantidad.addTextChangedListener { texto ->
+            // Esto se ejecuta cada vez que el texto cambia, texto es la val donde se almacena el texto del edittext
+            val nuevoTexto = texto.toString().toIntOrNull()
+            cambioCantidadMoje(nuevoTexto,menuLayout)
         }
 
         //boton de guardar moje
         val guardarMoje = findViewById<TextView>(R.id.enviarMoje)
         guardarMoje.setOnClickListener{
-            val cantidad = findViewById<EditText>(R.id.cantidadMojes).text.toString()
-            for (item in viewModel.receta ?: emptyList()) {
-                val mojePorciones = item.porciones.toIntOrNull() ?: 0
-
+            val mojesGuardados = mutableMapOf<String, Any>()
+            val multiIngredientes = mutableListOf<Map<String, Any>>()
+            val seleccionado = menuLayout.findViewWithTag<ConstraintLayout>(true)
+            val meterNuevoIngrediente: MutableList<IngredienteMoje> = mutableListOf()
+            if (seleccionado == null) {
+                return@setOnClickListener
             }
+            val nombreReceta = seleccionado.findViewById<TextView>(R.id.nombreReceta1).text.toString()
+            for (item in viewModel.receta ?: emptyList()) {
+                if (item.nombre == nombreReceta) {
+                    mojesGuardados["moje"] = cantidad.text.toString()
+                    mojesGuardados["nombre"] = nombreReceta
+                    for (ingre in item.ingredientes) {
+                        val cantidadNieja = ((ingre.cantidad.toIntOrNull() ?: 0) * (cantidad.text.toString().toIntOrNull() ?: 0)).toString()
+                        val poner = mapOf(
+                            "ingrediente" to ingre.ingrediente,
+                            "cantidad" to cantidadNieja,
+                            "tachado" to false
+                        )
+                        val subMoje = IngredienteMoje(
+                            ingrediente = ingre.ingrediente,
+                            cantidad = cantidadNieja,
+                            tachado = false
+                        )
+                        meterNuevoIngrediente.add(subMoje)
+                        multiIngredientes.add(poner)
+                    }
+                    mojesGuardados["ingredientes"] = multiIngredientes
+                    val datosParaGuardar = mapOf("moje" to mojesGuardados)
+                    guardarMojes(datosParaGuardar)
+                    cerrarMojes.performClick()
+                    cantidad.setText("1")
+                    val nuevaMoje = Moje(
+                        nombre = nombreReceta,
+                        moje = cantidad.text.toString(),
+                        ingredientes = meterNuevoIngrediente
+                    )
+                    viewModel2.moje.add(nuevaMoje)
+                    val fragmentactual = supportFragmentManager.findFragmentById(R.id.fragment_container)
+                    if (fragmentactual is mojes) {
+                        val fragmentTransaction = supportFragmentManager.beginTransaction()
+                        val fragmentTransaction2 = supportFragmentManager.beginTransaction()
+                        fragmentTransaction
+                            .detach(fragmentactual)  // desconecta el fragment
+                            .commit()
+                        fragmentTransaction2
+                            .attach(fragmentactual)  // lo vuelve a conectar (recrea la vista)
+                            .commit()
+                    }
+                    replaceFragment(mojes())
+                    break
+                }
+            }
+            Log.d("guardado", "Contenido: ${mojesGuardados}")
         }
 
     }
 
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        if (currentFocus != null) {
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(currentFocus!!.windowToken, 0)
+            currentFocus!!.clearFocus()
+        }
+        return super.dispatchTouchEvent(ev)
+    }
     // Función de ayuda para reemplazar el fragment en el contenedor
     private fun replaceFragment(fragment: Fragment) {
         val fragmentactual = supportFragmentManager.findFragmentById(R.id.fragment_container)
@@ -291,10 +419,17 @@ class MainActivity : AppCompatActivity() {
             }
         } else {
             // Cambiar directamente si no está en nueva_receta
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .addToBackStack(null)
-                .commit()
+            if (fragment is recetas) {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, fragment, "RECETAS_FRAGMENT_TAG")
+                    .addToBackStack(null)
+                    .commit()
+            }else {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(null)
+                    .commit()
+            }
         }
 
     }
@@ -348,28 +483,86 @@ class MainActivity : AppCompatActivity() {
                 .start()
         }
     }
-    private fun updateMenu(menuLayout: LinearLayout) {
+    fun updateMenu() {
+        val menuLayout = findViewById<LinearLayout>(R.id.cajaRecetas)
         menuLayout.removeAllViews()
         val inflater = layoutInflater
         // 🔹 Accedemos directamente al ViewModel
         for (item in viewModel.receta ?: emptyList()) {
             val cadaReceta = inflater.inflate(R.layout.bloque_moje_recetas, menuLayout, false)
             cadaReceta.findViewById<TextView>(R.id.nombreReceta1).text = item.nombre
-            cadaReceta.findViewById<TextView>(R.id.porcionesReceta1).text = item.porciones+" u/s"
+            val porcionesTextView = cadaReceta.findViewById<TextView>(R.id.porcionesReceta1)
+            porcionesTextView.text = "${item.porciones} u/s"
+            porcionesTextView.tag = item.porciones
             val typedValue = android.util.TypedValue()
             val typedValue2 = android.util.TypedValue()
             theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
             theme.resolveAttribute(com.google.android.material.R.attr.colorOutline, typedValue2, true)
             cadaReceta.setOnClickListener {
-                for (i in 0 until menuLayout.childCount) {
-                    val child = menuLayout.getChildAt(i)
+                menuLayout.children.forEach { child ->
                     child.setBackgroundColor(typedValue.data)
                     child.tag = false
                 }
                 cadaReceta.setBackgroundColor(typedValue2.data)
                 cadaReceta.tag = true
             }
+            cadaReceta.id = item.nombre.hashCode()
             menuLayout.addView(cadaReceta)
         }
     }
+    private fun cambioCantidadMoje(texto: Int?,menuLayout: LinearLayout) {
+        if (texto != null) {
+            menuLayout.children.forEach { child ->
+                val porcionesTextView = child.findViewById<TextView>(R.id.porcionesReceta1)
+                val cantidad = when(val tagValue = porcionesTextView.tag) {
+                    is Int -> tagValue
+                    is String -> tagValue.toIntOrNull() ?: 0
+                    else -> 0
+                }
+                porcionesTextView.text = "${cantidad * texto} u/s"
+            }
+        }
+    }
+    private fun guardarMojes(recetaEnvueltas: Map<String, Any>) {
+        val nombreArchivo = "mojes.json"
+        val gson = GsonBuilder().setPrettyPrinting().create() // Usamos el "bonito" desde el principio
+        val listaDeRecetas: MutableList<Map<String, Any>>
+
+        try {
+            // 1. INTENTAR LEER EL ARCHIVO EXISTENTE
+            val archivo = File(filesDir, nombreArchivo)
+            if (archivo.exists() && archivo.readText().isNotBlank()) {
+                val jsonExistente = archivo.readText()
+                val tipoLista = object : TypeToken<MutableList<Map<String, Any>>>() {}.type
+                listaDeRecetas = gson.fromJson(jsonExistente, tipoLista)
+            } else {
+                // Si el archivo no existe o está vacío, crea una lista nueva
+                listaDeRecetas = mutableListOf()
+            }
+
+            // 2. AÑADIR LA NUEVA RECETA (ya envuelta) A LA LISTA
+            listaDeRecetas.add(recetaEnvueltas)
+
+            // 3. CONVERTIR LA LISTA ACTUALIZADA A JSON
+            val jsonActualizado = gson.toJson(listaDeRecetas)
+
+            // 4. ESCRIBIR LA LISTA COMPLETA DE VUELTA AL ARCHIVO
+            openFileOutput(nombreArchivo, Context.MODE_PRIVATE).use { outputStream ->
+                outputStream.write(jsonActualizado.toByteArray())
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            AlertDialog.Builder(this)
+                .setMessage("Error al guardar la receta: ${e.message}")
+                .setNegativeButton("Ok") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .show()
+        }
+    }
+    fun notificarNuevaReceta() {
+        val fragment = supportFragmentManager.findFragmentByTag("RECETAS_FRAGMENT_TAG") as? recetas
+        fragment?.mostrarRecetas()
+    }
+
 }

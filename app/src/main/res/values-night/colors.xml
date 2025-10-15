@@ -13,4 +13,5 @@
     <color name="md_theme_light_mas2">#FFBC94</color> <!-- mas2 -->
     <color name="md_theme_light_mas3">#E8A674</color> <!-- mas3 -->
     <color name="md_theme_light_select">#54443D</color> <!-- select -->
+    <color name="md_theme_light_subfondo">#786156</color> <!-- select -->
 </resources>

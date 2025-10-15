@@ -39,13 +39,17 @@ class recetas : Fragment() {
 
         val boton = view.findViewById<View>(R.id.icon_mas_recetas)
         boton.setOnClickListener {
-            replaceFragment(nueva_receta())
+            replaceFragment()
         }
 
         val container = view.findViewById<LinearLayout>(R.id.containerRecetas)
         val inflater = LayoutInflater.from(requireContext())
 
-        viewModel.receta?.forEach { receta ->
+        (viewModel.receta ?: emptyList()).ifEmpty {
+            // Esto se ejecuta si la lista está vacía
+            view.findViewById<LinearLayout>(R.id.esconderCaja).visibility = View.GONE
+            emptyList<Receta>()
+        }.forEach { receta ->
             // esto solo se ejecuta si recetas no es null
             val bloqueReceta = inflater.inflate(R.layout.bloque_receta, container, false)
 
@@ -53,6 +57,9 @@ class recetas : Fragment() {
 
             val btnExpandir = bloqueReceta.findViewById<View>(R.id.botonIngredientes)
             val btnEditar = bloqueReceta.findViewById<View>(R.id.editar)
+            btnEditar.setOnClickListener{
+                replaceFragment(receta)
+            }
 
             btnExpandir.setOnClickListener {
                 if (colapsable.visibility == View.VISIBLE) {
@@ -63,7 +70,7 @@ class recetas : Fragment() {
             }
 
             bloqueReceta.findViewById<TextView>(R.id.recetaS).text = receta.nombre
-            bloqueReceta.findViewById<TextView>(R.id.porcionesS).text = "${receta.porciones}"
+            bloqueReceta.findViewById<TextView>(R.id.porcionesS).text = receta.porciones
 
             val contenedorIngredientes = bloqueReceta.findViewById<LinearLayout>(R.id.meterIngredientes)
 
@@ -72,6 +79,10 @@ class recetas : Fragment() {
                 bloqueIngrediente.findViewById<TextView>(R.id.ingrediente1).text = ing.ingrediente
                 bloqueIngrediente.findViewById<TextView>(R.id.cantidad1).text = ing.cantidad
                 contenedorIngredientes.addView(bloqueIngrediente)
+            }
+            if(receta.instrucciones != ""){
+                bloqueReceta.findViewById<TextView>(R.id.campoInstrucciones).text = receta.instrucciones
+                bloqueReceta.findViewById<LinearLayout>(R.id.cajaInstrucciones).visibility = View.VISIBLE
             }
 
             container.addView(bloqueReceta)
@@ -89,7 +100,11 @@ class recetas : Fragment() {
         // Cuando el fragment deja de estar visible
         (activity?.findViewById<MaterialToolbar>(R.id.topAppBar3))?.visibility = View.GONE
     }
-    private fun replaceFragment(fragment: Fragment) {
+    private fun replaceFragment(receta: Receta? = null) {
+        val fragment = nueva_receta()
+        if (receta != null) {
+            fragment.receta = receta
+        }
         parentFragmentManager.beginTransaction().apply {
             replace(R.id.fragment_container, fragment) // R.id.fragment_container es el ID de tu FragmentContainerView
             addToBackStack(null)
@@ -132,6 +147,51 @@ class recetas : Fragment() {
         animator.duration = 300
         animator.start()
     }
+    fun mostrarRecetas() {
+        val container = view?.findViewById<LinearLayout>(R.id.containerRecetas) ?: return
+        val inflater = LayoutInflater.from(requireContext())
+
+        container.removeAllViews() // limpiar antes de volver a llenar
+
+
+        viewModel.receta?.forEach { receta ->
+            val bloqueReceta = inflater.inflate(R.layout.bloque_receta, container, false)
+            val colapsable = bloqueReceta.findViewById<LinearLayout>(R.id.subReceta)
+
+            val btnExpandir = bloqueReceta.findViewById<View>(R.id.botonIngredientes)
+            val btnEditar = bloqueReceta.findViewById<View>(R.id.editar)
+
+            btnEditar.setOnClickListener{
+                replaceFragment(receta)
+            }
+
+            btnExpandir.setOnClickListener {
+                if (colapsable.visibility == View.VISIBLE) {
+                    collapse(colapsable)
+                } else {
+                    expand(colapsable)
+                }
+            }
+
+            bloqueReceta.findViewById<TextView>(R.id.recetaS).text = receta.nombre
+            bloqueReceta.findViewById<TextView>(R.id.porcionesS).text = receta.porciones
+
+            val contenedorIngredientes = bloqueReceta.findViewById<LinearLayout>(R.id.meterIngredientes)
+            for (ing in receta.ingredientes) {
+                val bloqueIngrediente = inflater.inflate(R.layout.bloque_ingredientes, contenedorIngredientes, false)
+                bloqueIngrediente.findViewById<TextView>(R.id.ingrediente1).text = ing.ingrediente
+                bloqueIngrediente.findViewById<TextView>(R.id.cantidad1).text = ing.cantidad
+                contenedorIngredientes.addView(bloqueIngrediente)
+            }
+            if(receta.instrucciones != ""){
+                bloqueReceta.findViewById<TextView>(R.id.campoInstrucciones).text = receta.instrucciones
+                bloqueReceta.findViewById<LinearLayout>(R.id.cajaInstrucciones).visibility = View.VISIBLE
+            }
+
+            container.addView(bloqueReceta)
+        }
+    }
+
 
 }
 

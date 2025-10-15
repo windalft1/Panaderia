@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/textoMoje1"
+    android:layout_width="160dp"
+    android:layout_height="match_parent"
+    android:background="@drawable/bordes_circulo_arriba"
+    android:gravity="center"
+    android:text="moje1"
+    android:maxLines="1"
+    android:ellipsize="end"
+    android:clickable="true"
+    android:focusable="true" />

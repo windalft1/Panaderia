@@ -29,12 +29,13 @@
     </FrameLayout>
 
     <LinearLayout
+        android:id="@+id/esconderCaja"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginBottom="3dp"
         android:paddingBottom="6dp"
-        android:background="?attr/colorSecondary">
+        android:background="?attr/colorSurfaceVariant">
 
         <TextView
             android:layout_width="0dp"
@@ -50,7 +51,7 @@
             android:layout_weight="1.2"
             android:text="porciones"
             android:paddingLeft="30dp"
-            android:layout_marginLeft="3dp"
+            android:layout_marginLeft="1dp"
             android:gravity="center_vertical"
             android:background="?attr/android:colorBackground"/>
 
@@ -60,7 +61,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="40dp"
-        android:layout_marginTop="45dp">
+        android:layout_marginTop="45dp"
+        android:scrollbars="none">
 
         <LinearLayout
             android:id="@+id/containerRecetas"
