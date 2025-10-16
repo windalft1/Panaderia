@@ -15,13 +15,16 @@ This is an Android mobile application built with Kotlin and Jetpack Compose for 
 - **Language**: Kotlin 2.0.21
 - **Build System**: Gradle 8.13.0
 - **UI Framework**: Jetpack Compose + Material Design 3
-- **Min SDK**: Android 7.0 (API 24)
+- **Min SDK**: Android 8.0 (API 26)
 - **Target SDK**: Android 36
 - **Dependencies**:
   - AndroidX Core, Lifecycle, AppCompat
   - Material Components
   - Gson for JSON parsing
   - Jetpack Compose BOM 2024.09.00
+  - **Supabase 3.0.3** (Database, Auth, Storage, Realtime)
+  - Ktor 3.0.2 (HTTP client for Supabase)
+  - Kotlinx Serialization 1.7.3
 
 ## Project Structure
 ```
@@ -33,6 +36,7 @@ app/src/main/
 │   ├── mojes.kt                # Batches/mixes fragment
 │   ├── nueva_receta.kt         # New recipe creation
 │   ├── ThemeManager.kt         # Dark/light theme management
+│   ├── SupabaseClient.kt       # Supabase client configuration
 │   └── ui/theme/               # Compose theme files
 ├── res/                        # Resources (layouts, drawables, etc.)
 └── AndroidManifest.xml         # App configuration
@@ -43,10 +47,24 @@ app/src/main/
 - **Receta**: Recipe with name, portions, and list of ingredients
 - **RecetasViewModel**: ViewModel for managing recipe data across fragments
 
-## Local Data Storage
+## Data Storage Options
+
+### Local Storage (Current)
 The app uses local JSON files stored in the app's internal storage:
 - `recetas.json` - Stores all recipes
 - `mojes.json` - Stores batch/mix information
+
+### Supabase Integration (Available)
+Supabase has been configured and is ready to use:
+- **Database**: PostgreSQL con Postgrest para consultas
+- **Auth**: Sistema de autenticación completo
+- **Storage**: Almacenamiento de archivos
+- **Realtime**: Actualizaciones en tiempo real
+
+Para usar Supabase:
+1. Configura tu proyecto en [supabase.com](https://supabase.com)
+2. Actualiza `SupabaseClient.kt` con tu URL y API key
+3. Reemplaza las operaciones de JSON local con llamadas a Supabase
 
 ## Limitations on Replit
 ⚠️ **Important**: This Android application cannot be run or previewed directly in Replit because:
@@ -89,6 +107,15 @@ The app uses local JSON files stored in the app's internal storage:
 ```
 
 ## Recent Changes
+- **2025-10-16**: Supabase Integration Added
+  - Added Supabase SDK 3.0.3 with full modules (Postgrest, Auth, Storage, Realtime)
+  - Configured Ktor HTTP client for Android
+  - Added Kotlinx Serialization support
+  - Created SupabaseClient.kt with example usage
+  - Updated minSdk from API 24 to API 26 (required by Supabase)
+  - Added INTERNET permission to AndroidManifest
+  - Gradle configuration validated (dependencies resolve correctly)
+  
 - **2025-10-15**: Project imported to Replit from GitHub
   - Created comprehensive documentation (README.md, replit.md)
   - Set up informational workflow displaying project structure
