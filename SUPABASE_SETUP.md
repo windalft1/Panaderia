@@ -39,8 +39,8 @@ Edita `app/src/main/java/com/example/panaderia/SupabaseClient.kt`:
 
 ```kotlin
 val client = createSupabaseClient(
-    supabaseUrl = "https://tu-proyecto.supabase.co",  // Reemplaza aquí
-    supabaseKey = "tu-clave-anonima"  // Reemplaza aquí
+    supabaseUrl = "https://tfkenvefmvsjbuwfzajn.supabase.co",  // Reemplaza aquí
+    supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRma2VudmVmbXZzamJ1d2Z6YWpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1MjE2NzQsImV4cCI6MjA3NjA5NzY3NH0.qW4NxW6XYFao44JFTkp-4DbeWHmm3TG8jRj6iw0RrPI"  // Reemplaza aquí
 ) {
     install(Postgrest)
     install(Auth)

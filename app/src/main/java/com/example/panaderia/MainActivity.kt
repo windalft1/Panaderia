@@ -39,7 +39,19 @@ import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.AccelerateInterpolator
+import androidx.lifecycle.lifecycleScope
+import io.github.jan.supabase.createSupabaseClient
+import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.realtime.Realtime
+import io.github.jan.supabase.storage.Storage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Ingrediente(
     val ingrediente: String,
     val cantidad: String
@@ -50,6 +62,7 @@ data class IngredienteMoje(
     var tachado: Boolean
 )
 
+@Serializable
 data class Receta(
     val nombre: String,
     val porciones: String, // 👈 cambia a String porque en el JSON está entre comillas
@@ -77,6 +90,7 @@ class RecetasViewModel : ViewModel() {
 class MojeViewModel : ViewModel() {
     var moje: MutableList<Moje> = mutableListOf()
 }
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var drawerLayout: DrawerLayout
@@ -134,7 +148,6 @@ class MainActivity : AppCompatActivity() {
             Log.e("LecturaJSON", "Error leyendo JSON", e)
             viewModel2.moje.clear() // lista vacía si hay error
         }
-
 
         // --- INICIO DE LOS CAMBIOS DE TEMA ---
         // 2. INICIALIZA Y APLICA EL TEMA GUARDADO ANTES DE NADA
@@ -233,6 +246,16 @@ class MainActivity : AppCompatActivity() {
         val btn1 = findViewById<TextView>(R.id.opcion1)
         val btn2 = findViewById<TextView>(R.id.opcion2)
         val btn3 = findViewById<TextView>(R.id.opcion3)
+
+        //subuda de recetas la primera vez
+        /*btn3.setOnClickListener {
+            lifecycleScope.launchWhenCreated {
+                val recetasLocales = viewModel.receta
+                recetasLocales?.forEach { receta ->
+                    SupabaseClient.client.postgrest["recetas"].insert(receta)
+                }
+            }
+        }*/
 
         btnPrincipal.setOnClickListener {
             val rotation = if (menuAbierto) 0f else 45f
@@ -563,6 +586,14 @@ class MainActivity : AppCompatActivity() {
     fun notificarNuevaReceta() {
         val fragment = supportFragmentManager.findFragmentByTag("RECETAS_FRAGMENT_TAG") as? recetas
         fragment?.mostrarRecetas()
+    }
+
+    suspend fun obtenerRecetas(): List<Receta> = withContext(Dispatchers.IO) {
+        val response = SupabaseClient.client
+            .from("recetas")
+            .select()
+            .decodeList<Receta>()
+        response
     }
 
 }
