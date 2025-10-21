@@ -40,6 +40,7 @@ import com.google.gson.reflect.TypeToken
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.AccelerateInterpolator
 import androidx.lifecycle.lifecycleScope
+import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.from
@@ -103,7 +104,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 🔹 Crear o recuperar el ViewModel clásico
+        //region 🔹  Crear o recuperar el ViewModel clásico
         viewModel = ViewModelProvider(this)[RecetasViewModel::class.java]
         viewModel2 = ViewModelProvider(this)[MojeViewModel::class.java]
 
@@ -148,6 +149,7 @@ class MainActivity : AppCompatActivity() {
             Log.e("LecturaJSON", "Error leyendo JSON", e)
             viewModel2.moje.clear() // lista vacía si hay error
         }
+        // endregion
 
         // --- INICIO DE LOS CAMBIOS DE TEMA ---
         // 2. INICIALIZA Y APLICA EL TEMA GUARDADO ANTES DE NADA
@@ -347,13 +349,14 @@ class MainActivity : AppCompatActivity() {
         val cantidad = findViewById<EditText>(R.id.cantidadMojes)
         cantidad.addTextChangedListener { texto ->
             // Esto se ejecuta cada vez que el texto cambia, texto es la val donde se almacena el texto del edittext
-            val nuevoTexto = texto.toString().toIntOrNull()
+            val nuevoTexto = texto.toString().replace(',', '.').toFloatOrNull()
             cambioCantidadMoje(nuevoTexto,menuLayout)
         }
 
         //boton de guardar moje
         val guardarMoje = findViewById<TextView>(R.id.enviarMoje)
         guardarMoje.setOnClickListener{
+            val cantidad = findViewById<EditText>(R.id.cantidadMojes)
             val mojesGuardados = mutableMapOf<String, Any>()
             val multiIngredientes = mutableListOf<Map<String, Any>>()
             val seleccionado = menuLayout.findViewWithTag<ConstraintLayout>(true)
@@ -367,7 +370,7 @@ class MainActivity : AppCompatActivity() {
                     mojesGuardados["moje"] = cantidad.text.toString()
                     mojesGuardados["nombre"] = nombreReceta
                     for (ingre in item.ingredientes) {
-                        val cantidadNieja = ((ingre.cantidad.toIntOrNull() ?: 0) * (cantidad.text.toString().toIntOrNull() ?: 0)).toString()
+                        val cantidadNieja = ((ingre.cantidad.toFloatOrNull() ?: 0f) * (cantidad.text.toString().toFloatOrNull() ?: 0f)).toString()
                         val poner = mapOf(
                             "ingrediente" to ingre.ingrediente,
                             "cantidad" to cantidadNieja,
@@ -533,14 +536,16 @@ class MainActivity : AppCompatActivity() {
             menuLayout.addView(cadaReceta)
         }
     }
-    private fun cambioCantidadMoje(texto: Int?,menuLayout: LinearLayout) {
+    private fun cambioCantidadMoje(texto: Float?,menuLayout: LinearLayout) {
         if (texto != null) {
             menuLayout.children.forEach { child ->
                 val porcionesTextView = child.findViewById<TextView>(R.id.porcionesReceta1)
                 val cantidad = when(val tagValue = porcionesTextView.tag) {
-                    is Int -> tagValue
-                    is String -> tagValue.toIntOrNull() ?: 0
-                    else -> 0
+                    is Float -> tagValue
+                    is Double -> tagValue.toFloat()
+                    is Int -> tagValue.toFloat()
+                    is String -> tagValue.toFloatOrNull() ?: 0f
+                    else -> 0f
                 }
                 porcionesTextView.text = "${cantidad * texto} u/s"
             }
@@ -586,14 +591,6 @@ class MainActivity : AppCompatActivity() {
     fun notificarNuevaReceta() {
         val fragment = supportFragmentManager.findFragmentByTag("RECETAS_FRAGMENT_TAG") as? recetas
         fragment?.mostrarRecetas()
-    }
-
-    suspend fun obtenerRecetas(): List<Receta> = withContext(Dispatchers.IO) {
-        val response = SupabaseClient.client
-            .from("recetas")
-            .select()
-            .decodeList<Receta>()
-        response
     }
 
 }
