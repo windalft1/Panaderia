@@ -8,11 +8,9 @@ import android.widget.ImageView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.appbar.MaterialToolbar
@@ -21,13 +19,9 @@ import com.google.gson.Gson
 import java.io.File
 import android.widget.LinearLayout
 import android.animation.ObjectAnimator
-import android.view.LayoutInflater
 import android.view.animation.OvershootInterpolator
 import android.widget.TextView
 import android.view.View
-import androidx.lifecycle.Observer
-import androidx.core.content.ContextCompat
-import android.graphics.Color
 import androidx.constraintlayout.widget.ConstraintLayout
 import android.widget.EditText
 import androidx.core.widget.addTextChangedListener
@@ -37,19 +31,7 @@ import android.view.MotionEvent
 import android.view.inputmethod.InputMethodManager
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import android.view.animation.DecelerateInterpolator
 import android.view.animation.AccelerateInterpolator
-import androidx.lifecycle.lifecycleScope
-import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.createSupabaseClient
-import io.github.jan.supabase.postgrest.Postgrest
-import io.github.jan.supabase.postgrest.from
-import io.github.jan.supabase.postgrest.postgrest
-import io.github.jan.supabase.realtime.Realtime
-import io.github.jan.supabase.storage.Storage
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -245,9 +227,9 @@ class MainActivity : AppCompatActivity() {
         //boton opciones girando y actuando
         val btnPrincipal = findViewById<LinearLayout>(R.id.opciones)
         var menuAbierto = false
-        val btn1 = findViewById<TextView>(R.id.opcion1)
-        val btn2 = findViewById<TextView>(R.id.opcion2)
-        val btn3 = findViewById<TextView>(R.id.opcion3)
+        val btnPedidos = findViewById<TextView>(R.id.TVBotonPedido)
+        val btnMoje = findViewById<TextView>(R.id.TVBotonMoje)
+        val btnTiempo = findViewById<TextView>(R.id.TVBotonTiempo)
 
         //subuda de recetas la primera vez
         /*btn3.setOnClickListener {
@@ -267,14 +249,14 @@ class MainActivity : AppCompatActivity() {
             rotate.start()
             if (menuAbierto) {
                 // Ocultar menú con retardo escalonado (de arriba hacia abajo)
-                animateButton(btn3, 0, false)
-                animateButton(btn2, 50, false)
-                animateButton(btn1, 100, false)
+                animateButton(btnTiempo, 0, false)
+                animateButton(btnMoje, 50, false)
+                animateButton(btnPedidos, 100, false)
             } else {
                 // Mostrar menú con retardo escalonado (de abajo hacia arriba)
-                animateButton(btn1, 0, true)
-                animateButton(btn2, 50, true)
-                animateButton(btn3, 100, true)
+                animateButton(btnPedidos, 0, true)
+                animateButton(btnMoje, 50, true)
+                animateButton(btnTiempo, 100, true)
             }
             menuAbierto = !menuAbierto
         }
@@ -284,9 +266,10 @@ class MainActivity : AppCompatActivity() {
         updateMenu()
 
         //boton de mojes
-        val oculto = findViewById<ConstraintLayout>(R.id.contenedorOculto)
-        val cajaOculto = findViewById<LinearLayout>(R.id.caja1)
-        btn2.setOnClickListener{
+        val bloqueOcultoMoje = findViewById<ConstraintLayout>(R.id.CLMojes)
+        val cajaOculto = findViewById<LinearLayout>(R.id.LLCajaMojes)
+        val btnCerrarMojes = findViewById<LinearLayout>(R.id.LLBotonCerrarMojes)
+        btnMoje.setOnClickListener{
             if (viewModel.receta.isNullOrEmpty()){
                 AlertDialog.Builder(this)
                     .setMessage("No hay recetas aun")
@@ -296,18 +279,18 @@ class MainActivity : AppCompatActivity() {
                     .show()
                 return@setOnClickListener
             }
-            btn1.visibility = View.GONE
-            btn2.visibility = View.GONE
-            btn3.visibility = View.GONE
-            btnPrincipal.visibility = View.GONE
+            animateButton(btnTiempo, 0, false)
+            animateButton(btnMoje, 50, false)
+            animateButton(btnPedidos, 100, false)
+            //btnPrincipal.visibility = View.GONE
             btnPrincipal.rotation = 0f
+            btnCerrarMojes.rotation = 45f
             menuAbierto = false
             //oculto.visibility = View.VISIBLE
-            oculto.visibility = View.VISIBLE
+            bloqueOcultoMoje.visibility = View.VISIBLE
             cajaOculto.scaleX = 0.8f
             cajaOculto.scaleY = 0.8f
             cajaOculto.alpha = 0f
-
 
             cajaOculto.animate()
                 .scaleX(1f)
@@ -319,9 +302,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         //boton de cerrar mojes
-        val cerrarMojes = findViewById<LinearLayout>(R.id.cerrarMojes)
-        cerrarMojes.setOnClickListener{
+        btnCerrarMojes.setOnClickListener{
             btnPrincipal.visibility = View.VISIBLE
+            //quitar seleccion a las recetas en el contenedor oculto mojes
             val typedValue = android.util.TypedValue()
             theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
             for (i in 0 until menuLayout.childCount) {
@@ -330,6 +313,11 @@ class MainActivity : AppCompatActivity() {
                 child.tag = false
             }
 
+            val rotation = 0f
+            val rotate = ObjectAnimator.ofFloat(btnCerrarMojes, "rotation", rotation)
+            rotate.duration = 300
+            rotate.interpolator = OvershootInterpolator()
+            rotate.start()
             cajaOculto.animate()
                 .scaleX(0.8f)
                 .scaleY(0.8f)
@@ -340,7 +328,7 @@ class MainActivity : AppCompatActivity() {
                     cajaOculto.scaleX = 1f  // restaurar para la próxima vez
                     cajaOculto.scaleY = 1f
                     cajaOculto.alpha = 1f
-                    oculto.visibility = View.GONE
+                    bloqueOcultoMoje.visibility = View.GONE
                 }
                 .start()
         }
@@ -387,7 +375,7 @@ class MainActivity : AppCompatActivity() {
                     mojesGuardados["ingredientes"] = multiIngredientes
                     val datosParaGuardar = mapOf("moje" to mojesGuardados)
                     guardarMojes(datosParaGuardar)
-                    cerrarMojes.performClick()
+                    btnCerrarMojes.performClick()
                     cantidad.setText("1")
                     val nuevaMoje = Moje(
                         nombre = nombreReceta,
@@ -426,6 +414,7 @@ class MainActivity : AppCompatActivity() {
     // Función de ayuda para reemplazar el fragment en el contenedor
     private fun replaceFragment(fragment: Fragment) {
         val fragmentactual = supportFragmentManager.findFragmentById(R.id.fragment_container)
+        if (fragmentactual == fragment) return
 
         if (fragmentactual is nueva_receta) {
             if (fragmentactual.tieneContenidoSinGuardar()) {
@@ -456,6 +445,12 @@ class MainActivity : AppCompatActivity() {
                     .addToBackStack(null)
                     .commit()
             }
+        }
+        val bloqueOcultoMoje = findViewById<ConstraintLayout>(R.id.CLMojes)
+        val btnCerrarMojes = findViewById<LinearLayout>(R.id.LLBotonCerrarMojes)
+        val mojeVisible = bloqueOcultoMoje.visibility
+        if (mojeVisible == View.VISIBLE){
+            btnCerrarMojes.performClick()
         }
 
     }

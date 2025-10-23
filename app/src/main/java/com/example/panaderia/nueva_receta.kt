@@ -9,15 +9,8 @@ import androidx.appcompat.app.AlertDialog   // Para el AlertDialog
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity // <-- CAMBIO 1 (AÑADIDO)
 import android.widget.LinearLayout
-import android.widget.Button
-import androidx.compose.ui.semantics.text
 import android.widget.EditText
 import android.util.Log
-import android.widget.Toast
-import androidx.compose.ui.input.key.type
-import kotlin.concurrent.write
-import kotlin.io.path.exists
-import kotlin.io.path.readText
 // Pega estas líneas junto a tus otras importaciones
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -25,8 +18,6 @@ import java.io.File
 import android.content.Context
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.appbar.MaterialToolbar
-import android.R.attr.rotation
 
 
 class nueva_receta : Fragment() {
@@ -424,9 +415,9 @@ class nueva_receta : Fragment() {
             visibility = View.GONE
             rotation = 0f
         }
-        (activity?.findViewById<TextView>(R.id.opcion1))?.visibility = View.GONE
-        (activity?.findViewById<TextView>(R.id.opcion2))?.visibility = View.GONE
-        (activity?.findViewById<TextView>(R.id.opcion3))?.visibility = View.GONE
+        (activity?.findViewById<TextView>(R.id.TVBotonPedido))?.visibility = View.GONE
+        (activity?.findViewById<TextView>(R.id.TVBotonMoje))?.visibility = View.GONE
+        (activity?.findViewById<TextView>(R.id.TVBotonTiempo))?.visibility = View.GONE
         if (receta != null){
             view?.findViewById<TextView>(R.id.borrar)?.visibility= View.VISIBLE
         }

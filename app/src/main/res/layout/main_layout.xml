@@ -15,9 +15,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
+        <!--parte principal con la cabezera y el contenedor para fragments-->
+        <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -66,6 +65,7 @@
                 android:layout_weight="1"
                 android:background="?attr/android:colorBackground">
 
+                <!--boton giratorio principal-->
                 <LinearLayout
                     android:id="@+id/opciones"
                     android:elevation="10dp"
@@ -86,9 +86,9 @@
                         android:background="@drawable/mas_blanco"/>
 
                 </LinearLayout>
-
+                <!--boton pedido-->
                 <TextView
-                    android:id="@+id/opcion1"
+                    android:id="@+id/TVBotonPedido"
                     android:elevation="10dp"
                     android:layout_gravity="end|bottom"
                     android:layout_width="80dp"
@@ -103,9 +103,9 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:visibility="gone"/>
-
+                <!--boton moje-->
                 <TextView
-                    android:id="@+id/opcion2"
+                    android:id="@+id/TVBotonMoje"
                     android:elevation="10dp"
                     android:layout_gravity="end|bottom"
                     android:layout_width="80dp"
@@ -120,9 +120,9 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:visibility="gone"/>
+                <!--boton tiempos-->
                 <TextView
-
-                    android:id="@+id/opcion3"
+                    android:id="@+id/TVBotonTiempo"
                     android:elevation="10dp"
                     android:layout_gravity="end|bottom"
                     android:layout_width="80dp"
@@ -143,21 +143,22 @@
         </LinearLayout>
 
 
-        <!-- contenedor bloques oculto -->
+        <!-- contenedor mojes oculto -->
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/contenedorOculto"
+            android:id="@+id/CLMojes"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone">
 
+            <!--bloque oscurecedor para el bloque mojes-->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="#C4C4C4"
                 android:alpha="0.5"/>
-            
+            <!--contenedor de la interfas para seleccionar los mojes y sus recetas-->
             <LinearLayout
-                android:id="@+id/caja1"
+                android:id="@+id/LLCajaMojes"
                 android:orientation="vertical"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -239,19 +240,19 @@
 
             <!--boton de cerrar mojes-->
             <LinearLayout
-                android:id="@+id/cerrarMojes"
-                app:layout_constraintTop_toBottomOf="@id/caja1"
-                app:layout_constraintStart_toStartOf="parent"
+                android:id="@+id/LLBotonCerrarMojes"
+                android:rotation="45"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 android:layout_width="90dp"
                 android:layout_height="90dp"
                 android:background="@drawable/circulo_completo"
-                android:backgroundTint="?attr/colorOnTertiaryContainer"
+                android:backgroundTint="?attr/colorPrimary"
                 android:gravity="center"
-                android:layout_marginTop="30dp"
+                android:layout_marginRight="50dp"
+                android:layout_marginBottom="50dp"
                 android:clickable="true"
-                android:focusable="true"
-                android:rotation="45">
+                android:focusable="true">
 
                 <View
                     android:layout_width="60dp"
@@ -260,6 +261,68 @@
 
             </LinearLayout>
             
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!--contenedor tiempos oculto-->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/CLTiempos"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!--bloque oscurecedor para el bloque tiempos-->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#C4C4C4"
+                android:alpha="0.5"/>
+            <!--contenedor de la interfas para crear temporizadores y sus etiquetas-->
+            <LinearLayout
+                android:id="@+id/LLCajaTiempos"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintWidth_percent="0.7"
+                app:layout_constraintHeight_percent="0.7"
+                android:background="@drawable/bordes_algo_redondos"
+                android:backgroundTint="?attr/colorOnTertiaryFixed">
+
+                <!--contenedor etiquetas-->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:background="@drawable/bordes_algo_redondos">
+
+                </LinearLayout>
+
+                <!--contenedor creador de temporizadores-->
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        android:layout_marginTop="20dp"
+                        android:textSize="25dp"
+                        android:paddingVertical="3dp"
+                        android:paddingHorizontal="7dp"
+                        android:background="@android:color/white"
+                        android:text="00  00  00"/>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </LinearLayout>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
         
     </FrameLayout>
