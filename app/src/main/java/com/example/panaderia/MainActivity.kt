@@ -261,13 +261,14 @@ class MainActivity : AppCompatActivity() {
             menuAbierto = !menuAbierto
         }
 
+        //region contenedor mojes
         //cargar recetas en el contenedor invisible
         val menuLayout = findViewById<LinearLayout>(R.id.cajaRecetas)
         updateMenu()
 
         //boton de mojes
         val bloqueOcultoMoje = findViewById<ConstraintLayout>(R.id.CLMojes)
-        val cajaOculto = findViewById<LinearLayout>(R.id.LLCajaMojes)
+        val cajaOcultoMoje = findViewById<LinearLayout>(R.id.LLCajaMojes)
         val btnCerrarMojes = findViewById<LinearLayout>(R.id.LLBotonCerrarMojes)
         btnMoje.setOnClickListener{
             if (viewModel.receta.isNullOrEmpty()){
@@ -282,23 +283,24 @@ class MainActivity : AppCompatActivity() {
             animateButton(btnTiempo, 0, false)
             animateButton(btnMoje, 50, false)
             animateButton(btnPedidos, 100, false)
-            //btnPrincipal.visibility = View.GONE
             btnPrincipal.rotation = 0f
             btnCerrarMojes.rotation = 45f
             menuAbierto = false
-            //oculto.visibility = View.VISIBLE
-            bloqueOcultoMoje.visibility = View.VISIBLE
-            cajaOculto.scaleX = 0.8f
-            cajaOculto.scaleY = 0.8f
-            cajaOculto.alpha = 0f
 
-            cajaOculto.animate()
-                .scaleX(1f)
-                .scaleY(1f)
-                .alpha(1f)
-                .setDuration(200)
-                .setInterpolator(OvershootInterpolator()) // pequeño rebote
-                .start()
+            cajaOcultoMoje.scaleX = 0.8f
+            cajaOcultoMoje.scaleY = 0.8f
+            cajaOcultoMoje.alpha = 0f
+            bloqueOcultoMoje.visibility = View.VISIBLE
+
+            cajaOcultoMoje.post {
+                cajaOcultoMoje.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .alpha(1f)
+                    .setDuration(200)
+                    .setInterpolator(OvershootInterpolator()) // pequeño rebote
+                    .start()
+            }
         }
 
         //boton de cerrar mojes
@@ -318,16 +320,16 @@ class MainActivity : AppCompatActivity() {
             rotate.duration = 300
             rotate.interpolator = OvershootInterpolator()
             rotate.start()
-            cajaOculto.animate()
+            cajaOcultoMoje.animate()
                 .scaleX(0.8f)
                 .scaleY(0.8f)
                 .alpha(0f)
                 .setDuration(150)
                 .setInterpolator(AccelerateInterpolator()) // acelera al final
                 .withEndAction {
-                    cajaOculto.scaleX = 1f  // restaurar para la próxima vez
-                    cajaOculto.scaleY = 1f
-                    cajaOculto.alpha = 1f
+                    cajaOcultoMoje.scaleX = 1f  // restaurar para la próxima vez
+                    cajaOcultoMoje.scaleY = 1f
+                    cajaOcultoMoje.alpha = 1f
                     bloqueOcultoMoje.visibility = View.GONE
                 }
                 .start()
@@ -399,6 +401,67 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             Log.d("guardado", "Contenido: ${mojesGuardados}")
+        }
+        // endregion
+
+        //boton de tiempos
+        val bloqueOcultoTiempos = findViewById<ConstraintLayout>(R.id.CLTiempos)
+        val cajaOcultoTiempos = findViewById<LinearLayout>(R.id.LLCajaTiempos)
+        val btnCerrarTiempos = findViewById<LinearLayout>(R.id.LLBotonCerrarTiempos)
+        btnTiempo.setOnClickListener{
+            animateButton(btnTiempo, 0, false)
+            animateButton(btnMoje, 50, false)
+            animateButton(btnPedidos, 100, false)
+            btnPrincipal.rotation = 0f
+            btnCerrarTiempos.rotation = 45f
+            menuAbierto = false
+
+            cajaOcultoTiempos.scaleX = 0.8f
+            cajaOcultoTiempos.scaleY = 0.8f
+            cajaOcultoTiempos.alpha = 0f
+            bloqueOcultoTiempos.visibility = View.VISIBLE
+
+            cajaOcultoTiempos.post {
+                cajaOcultoTiempos.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .alpha(1f)
+                    .setDuration(200)
+                    .setInterpolator(OvershootInterpolator()) // pequeño rebote
+                    .start()
+            }
+        }
+
+        //boton de cerrar tiempos
+        btnCerrarTiempos.setOnClickListener{
+            btnPrincipal.visibility = View.VISIBLE
+            //quitar seleccion a las recetas en el contenedor oculto mojes
+            /*val typedValue = android.util.TypedValue()
+            theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
+            for (i in 0 until menuLayout.childCount) {
+                val child = menuLayout.getChildAt(i)
+                child.setBackgroundColor(typedValue.data)
+                child.tag = false
+            }*/
+
+            val rotation = 0f
+            val rotate = ObjectAnimator.ofFloat(btnCerrarTiempos, "rotation", rotation)
+            rotate.duration = 300
+            rotate.interpolator = OvershootInterpolator()
+            rotate.start()
+            cajaOcultoTiempos.animate()
+                .scaleX(0.8f)
+                .scaleY(0.8f)
+                .alpha(0f)
+                .setDuration(150)
+                .setInterpolator(AccelerateInterpolator()) // acelera al final
+                .withEndAction {
+                    cajaOcultoTiempos.scaleX = 1f  // restaurar para la próxima vez
+                    cajaOcultoTiempos.scaleY = 1f
+                    cajaOcultoTiempos.alpha = 1f
+                    bloqueOcultoTiempos.visibility = View.GONE
+                }
+                .start()
         }
 
     }
