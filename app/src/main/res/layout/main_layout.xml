@@ -341,7 +341,7 @@
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        android:layout_marginTop="20dp"
+                        android:layout_marginTop="50dp"
                         android:background="@android:color/white">
 
                         <TextView
@@ -371,6 +371,7 @@
 
                     </LinearLayout>
 
+                    <!--botones de numeros-->
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/CLBotonesTiempo"
                         android:layout_width="match_parent"
@@ -387,8 +388,10 @@
                             android:gravity="center"
                             android:background="@drawable/circulo_completo"
                             android:backgroundTint="?attr/android:colorBackground"
+                            android:layout_marginTop="20dp"
                             app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"/>
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintEnd_toStartOf="@id/TVDos"/>
                         <TextView
                             android:id="@+id/TVDos"
                             android:layout_width="50dp"
@@ -399,7 +402,120 @@
                             android:background="@drawable/circulo_completo"
                             android:backgroundTint="?attr/android:colorBackground"
                             app:layout_constraintStart_toEndOf="@id/TVUno"
-                            app:layout_constraintTop_toTopOf="parent"/>
+                            app:layout_constraintTop_toTopOf="@id/TVUno"
+                            app:layout_constraintEnd_toStartOf="@id/TVTres"/>
+                        <TextView
+                            android:id="@+id/TVTres"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:textSize="25dp"
+                            android:text="3"
+                            android:gravity="center"
+                            android:background="@drawable/circulo_completo"
+                            android:backgroundTint="?attr/android:colorBackground"
+                            app:layout_constraintStart_toEndOf="@id/TVDos"
+                            app:layout_constraintTop_toTopOf="@id/TVUno"
+                            app:layout_constraintEnd_toEndOf="parent"/>
+                        <TextView
+                            android:id="@+id/TVCuatro"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:textSize="25dp"
+                            android:text="4"
+                            android:gravity="center"
+                            android:background="@drawable/circulo_completo"
+                            android:backgroundTint="?attr/android:colorBackground"
+                            android:layout_marginTop="20dp"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/TVDos"
+                            app:layout_constraintEnd_toStartOf="@id/TVDos"/>
+                        <TextView
+                            android:id="@+id/TVCinco"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:textSize="25dp"
+                            android:text="5"
+                            android:gravity="center"
+                            android:background="@drawable/circulo_completo"
+                            android:backgroundTint="?attr/android:colorBackground"
+                            app:layout_constraintStart_toEndOf="@id/TVUno"
+                            app:layout_constraintTop_toTopOf="@id/TVCuatro"
+                            app:layout_constraintEnd_toStartOf="@id/TVTres"/>
+                        <TextView
+                            android:id="@+id/TVSeis"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:textSize="25dp"
+                            android:text="6"
+                            android:gravity="center"
+                            android:background="@drawable/circulo_completo"
+                            android:backgroundTint="?attr/android:colorBackground"
+                            app:layout_constraintStart_toEndOf="@id/TVDos"
+                            app:layout_constraintTop_toTopOf="@id/TVCuatro"
+                            app:layout_constraintEnd_toEndOf="parent"/>
+                        <TextView
+                            android:id="@+id/TVSiete"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:textSize="25dp"
+                            android:text="7"
+                            android:gravity="center"
+                            android:background="@drawable/circulo_completo"
+                            android:backgroundTint="?attr/android:colorBackground"
+                            android:layout_marginTop="20dp"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/TVCuatro"
+                            app:layout_constraintEnd_toStartOf="@id/TVDos"/>
+                        <TextView
+                            android:id="@+id/TVOcho"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:textSize="25dp"
+                            android:text="8"
+                            android:gravity="center"
+                            android:background="@drawable/circulo_completo"
+                            android:backgroundTint="?attr/android:colorBackground"
+                            app:layout_constraintStart_toEndOf="@id/TVUno"
+                            app:layout_constraintTop_toTopOf="@id/TVSiete"
+                            app:layout_constraintEnd_toStartOf="@id/TVTres"/>
+                        <TextView
+                            android:id="@+id/TVNueve"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:textSize="25dp"
+                            android:text="9"
+                            android:gravity="center"
+                            android:background="@drawable/circulo_completo"
+                            android:backgroundTint="?attr/android:colorBackground"
+                            app:layout_constraintStart_toEndOf="@id/TVDos"
+                            app:layout_constraintTop_toTopOf="@id/TVSiete"
+                            app:layout_constraintEnd_toEndOf="parent"/>
+                        <TextView
+                            android:id="@+id/TVZero"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:textSize="25dp"
+                            android:text="0"
+                            android:gravity="center"
+                            android:background="@drawable/circulo_completo"
+                            android:backgroundTint="?attr/android:colorBackground"
+                            android:layout_marginTop="20dp"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/TVSiete"
+                            app:layout_constraintEnd_toStartOf="@id/TVDobleZero"/>
+                        <TextView
+                            android:id="@+id/TVDobleZero"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:textSize="25dp"
+                            android:text="00"
+                            android:gravity="center"
+                            android:background="@drawable/circulo_completo"
+                            android:backgroundTint="?attr/android:colorBackground"
+                            app:layout_constraintStart_toEndOf="@id/TVZero"
+                            app:layout_constraintTop_toTopOf="@id/TVZero"
+                            app:layout_constraintEnd_toEndOf="parent"/>
+
 
 
                     </androidx.constraintlayout.widget.ConstraintLayout>
