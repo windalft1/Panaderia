@@ -292,11 +292,38 @@
 
                 <!--contenedor etiquetas-->
                 <LinearLayout
+                    android:id="@+id/LLEtiquetas"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:orientation="vertical"
                     android:background="@drawable/bordes_algo_redondos">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Etiquetas"
+                        android:gravity="center"
+                        android:textSize="20dp"
+                        android:paddingTop="5dp"
+                        android:paddingBottom="5dp"/>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#000000"/>
+                    <TextView
+                        android:id="@+id/TVSinEtiqueta"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Sin etiqueta"
+                        android:gravity="center"
+                        android:textSize="15dp"
+                        android:paddingTop="5dp"
+                        android:paddingBottom="5dp"/>
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#000000"/>
 
                 </LinearLayout>
 
@@ -306,18 +333,77 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1">
 
-                    <TextView
+                    <!--layout tiempo-->
+                    <LinearLayout
+                        android:id="@+id/LLTiempo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         android:layout_marginTop="20dp"
-                        android:textSize="25dp"
-                        android:paddingVertical="3dp"
-                        android:paddingHorizontal="7dp"
-                        android:background="@android:color/white"
-                        android:text="00  00  00"/>
+                        android:background="@android:color/white">
+
+                        <TextView
+                            android:id="@+id/TVHoras"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="25dp"
+                            android:paddingVertical="3dp"
+                            android:paddingHorizontal="7dp"
+                            android:text="00"/>
+                        <TextView
+                            android:id="@+id/TVMinutos"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="25dp"
+                            android:paddingVertical="3dp"
+                            android:paddingHorizontal="7dp"
+                            android:text="00"/>
+                        <TextView
+                            android:id="@+id/TVSegundos"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="25dp"
+                            android:paddingVertical="3dp"
+                            android:paddingHorizontal="7dp"
+                            android:text="00"/>
+
+                    </LinearLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/CLBotonesTiempo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:layout_constraintTop_toBottomOf="@id/LLTiempo"
+                        android:layout_marginTop="10dp">
+
+                        <TextView
+                            android:id="@+id/TVUno"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:textSize="25dp"
+                            android:text="1"
+                            android:gravity="center"
+                            android:background="@drawable/circulo_completo"
+                            android:backgroundTint="?attr/android:colorBackground"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"/>
+                        <TextView
+                            android:id="@+id/TVDos"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:textSize="25dp"
+                            android:text="2"
+                            android:gravity="center"
+                            android:background="@drawable/circulo_completo"
+                            android:backgroundTint="?attr/android:colorBackground"
+                            app:layout_constraintStart_toEndOf="@id/TVUno"
+                            app:layout_constraintTop_toTopOf="parent"/>
+
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
