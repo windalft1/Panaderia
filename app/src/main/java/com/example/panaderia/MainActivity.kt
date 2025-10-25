@@ -440,6 +440,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        //boton agregar temporizadores
+        val btnAgregarTemporizador = findViewById<View>(R.id.VBotonAgregarTemporizadores)
+
         //boton de cerrar tiempos
         btnCerrarTiempos.setOnClickListener{
             btnPrincipal.visibility = View.VISIBLE
@@ -658,23 +661,40 @@ class MainActivity : AppCompatActivity() {
         val fragment = supportFragmentManager.findFragmentByTag("RECETAS_FRAGMENT_TAG") as? recetas
         fragment?.mostrarRecetas()
     }
-
     fun numerosTemporizador(vista: TextView){
         val horas = findViewById<TextView>(R.id.TVHoras)
         val minutos = findViewById<TextView>(R.id.TVMinutos)
         val segundos = findViewById<TextView>(R.id.TVSegundos)
         val numeroTexto = vista.text.toString()
-        if(segundos.text.toString().startsWith("0")){
-            val escribirNumero = (segundos.text.toString()).drop(1) + numeroTexto
-            segundos.text = escribirNumero
-        }else if(minutos.text.toString().startsWith("0")){
-            val escribirNumero = (minutos.text.toString()).drop(1) + numeroTexto
-            minutos.text = escribirNumero
-        }else if(horas.text.toString().startsWith("0")){
-            val escribirNumero = (horas.text.toString()).drop(1) + numeroTexto
-            horas.text = escribirNumero
+        if(numeroTexto == "-"){
+           var nuevoNumero = (horas.text.toString())+(minutos.text.toString())+(segundos.text.toString())
+            if (nuevoNumero == "000000"){
+                return
+            }
+            nuevoNumero = nuevoNumero.dropLast(1)
+            nuevoNumero = "0$nuevoNumero"
+            val hms = nuevoNumero.chunked(2)
+            horas.text = hms[0]
+            minutos.text = hms[1]
+            segundos.text = hms[2]
+            return
         }
-
+        var nuevoNumero = (horas.text.toString())+(minutos.text.toString())+(segundos.text.toString())
+        if(!nuevoNumero.startsWith("0")){
+            return
+        }
+        var quitar = 1
+        if(numeroTexto == "00"){
+            if((horas.text.toString()) != "00"){
+                return
+            }
+            quitar = 2
+        }
+        nuevoNumero = nuevoNumero.drop(quitar)
+        nuevoNumero = nuevoNumero + numeroTexto
+        val hms = nuevoNumero.chunked(2)
+        horas.text = hms[0]
+        minutos.text = hms[1]
+        segundos.text = hms[2]
     }
-
 }
