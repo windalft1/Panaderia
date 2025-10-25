@@ -430,6 +430,14 @@ class MainActivity : AppCompatActivity() {
                     .setInterpolator(OvershootInterpolator()) // pequeño rebote
                     .start()
             }
+
+            val contenedorBotonesNumeros = findViewById<ConstraintLayout>(R.id.CLBotonesTiempo)
+            for (i in 0 until contenedorBotonesNumeros.childCount) {
+                val vista = contenedorBotonesNumeros.getChildAt(i)
+                vista.setOnClickListener {
+                    numerosTemporizador(vista as TextView)
+                }
+            }
         }
 
         //boton de cerrar tiempos
@@ -649,6 +657,24 @@ class MainActivity : AppCompatActivity() {
     fun notificarNuevaReceta() {
         val fragment = supportFragmentManager.findFragmentByTag("RECETAS_FRAGMENT_TAG") as? recetas
         fragment?.mostrarRecetas()
+    }
+
+    fun numerosTemporizador(vista: TextView){
+        val horas = findViewById<TextView>(R.id.TVHoras)
+        val minutos = findViewById<TextView>(R.id.TVMinutos)
+        val segundos = findViewById<TextView>(R.id.TVSegundos)
+        val numeroTexto = vista.text.toString()
+        if(segundos.text.toString().startsWith("0")){
+            val escribirNumero = (segundos.text.toString()).drop(1) + numeroTexto
+            segundos.text = escribirNumero
+        }else if(minutos.text.toString().startsWith("0")){
+            val escribirNumero = (minutos.text.toString()).drop(1) + numeroTexto
+            minutos.text = escribirNumero
+        }else if(horas.text.toString().startsWith("0")){
+            val escribirNumero = (horas.text.toString()).drop(1) + numeroTexto
+            horas.text = escribirNumero
+        }
+
     }
 
 }
