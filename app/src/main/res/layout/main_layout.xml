@@ -338,11 +338,17 @@
                                 android:clickable="true"
                                 android:focusable="true"/>
                             <View
+                                android:tag="VNoColor"
                                 android:layout_width="match_parent"
                                 android:layout_height="1dp"
                                 android:background="#000000"/>
+
+                            <!--aqui iran las nuevas etiquetas-->
+
+                            <!--boton agregar wtiquetas-->
                             <View
                                 android:id="@+id/VBotonAgregarEtiqueta"
+                                android:tag="agregarEtiqueta"
                                 android:layout_width="40dp"
                                 android:layout_height="40dp"
                                 android:background="@drawable/agregar_simbolo"
@@ -643,6 +649,8 @@
                                 android:orientation="vertical"
                                 app:layout_constraintGuide_percent="0.5"/>
 
+                            <!--aqui van los nuevos temporizadores-->
+
                             <View
                                 android:id="@+id/VBotonAgregarTemporizadores"
                                 app:layout_constraintTop_toTopOf="parent"
@@ -687,6 +695,182 @@
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!--contenedor temporizadores funcionando-->
+        <LinearLayout
+            android:id="@+id/LLCajaTemporizadoresActivos"
+            android:layout_width="320dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginStart="10dp"
+            android:orientation="vertical"
+            android:layout_gravity="bottom|start">
+
+            <!--temporizadores extra y boton minimizar-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <!--temporizadores extra-->
+                <HorizontalScrollView
+                    android:id="@+id/HSTemporizadoresExtra"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:visibility="gone">
+                    <LinearLayout
+                        android:id="@+id/LLCajaTemporizadoresExtraHorizontal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal">
+
+                        /<!--qui van los temporizadores extra de bloque_temporizador_extra_horizontal-->
+
+                    </LinearLayout>
+                </HorizontalScrollView>
+                <!--boton minimizar-->
+                <View
+                    android:id="@+id/VBotonMinimizar"
+                    android:visibility="gone"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/minimizar"
+                    android:backgroundTint="?attr/colorPrimary"/>
+            </LinearLayout>
+            <!--temporizador 1-->
+            <FrameLayout
+                android:id="@+id/LLTemporizadorActivo1"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:orientation="horizontal"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/boton1"
+                android:backgroundTint="?attr/colorOnTertiary">
+                <TextView
+                    android:id="@+id/TVTextoTemporizadorActivo1"
+                    android:layout_width="210dp"
+                    android:layout_height="match_parent"
+                    android:autoSizeTextType="uniform"
+                    android:autoSizeMinTextSize="8sp"
+                    android:autoSizeMaxTextSize="22sp"
+                    android:autoSizeStepGranularity="1sp"
+                    android:ellipsize="none"
+                    android:gravity="center"
+                    android:layout_gravity="center_vertical|start"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:padding="2dp"
+                    android:text="Temporizador1 pandebonos"/>
+                <TextView
+                    android:id="@+id/TVTiempoTemporizadorActivo1"
+                    android:layout_width="100dp"
+                    android:layout_height="match_parent"
+                    android:autoSizeTextType="uniform"
+                    android:autoSizeMinTextSize="8sp"
+                    android:autoSizeMaxTextSize="25sp"
+                    android:autoSizeStepGranularity="1sp"
+                    android:ellipsize="none"
+                    android:gravity="center"
+                    android:layout_gravity="center_vertical|end"
+                    android:text="00:00:00"
+                    android:paddingHorizontal="5dp"
+                    android:layout_marginVertical="5dp"
+                    android:background="@drawable/boton1"
+                    android:backgroundTint="?attr/android:colorBackground"
+                    android:textColor="?attr/colorOnBackground"/>
+            </FrameLayout>
+            <!--temporizador 2-->
+            <FrameLayout
+                android:id="@+id/LLTemporizadorActivo2"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:orientation="horizontal"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/boton1"
+                android:backgroundTint="?attr/colorOnTertiaryContainer">
+                <TextView
+                    android:id="@+id/TVTextoTemporizadorActivo2"
+                    android:layout_width="210dp"
+                    android:layout_height="match_parent"
+                    android:autoSizeTextType="uniform"
+                    android:autoSizeMinTextSize="8sp"
+                    android:autoSizeMaxTextSize="22sp"
+                    android:autoSizeStepGranularity="1sp"
+                    android:ellipsize="none"
+                    android:gravity="center"
+                    android:layout_gravity="center_vertical|start"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:padding="2dp"
+                    android:text="Temporizador1 pandebonos"/>
+                <TextView
+                    android:id="@+id/TVTiempoTemporizadorActivo2"
+                    android:layout_width="100dp"
+                    android:layout_height="match_parent"
+                    android:autoSizeTextType="uniform"
+                    android:autoSizeMinTextSize="8sp"
+                    android:autoSizeMaxTextSize="25sp"
+                    android:autoSizeStepGranularity="1sp"
+                    android:ellipsize="none"
+                    android:gravity="center"
+                    android:layout_gravity="center_vertical|end"
+                    android:text="00:00:00"
+                    android:paddingHorizontal="5dp"
+                    android:layout_marginVertical="5dp"
+                    android:background="@drawable/boton1"
+                    android:backgroundTint="?attr/android:colorBackground"
+                    android:textColor="?attr/colorOnBackground"/>
+            </FrameLayout>
+            <!--temporizador 3-->
+            <FrameLayout
+                android:id="@+id/LLTemporizadorActivo3"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:orientation="horizontal"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/boton1"
+                android:backgroundTint="?attr/colorOnTertiaryFixed">
+                <TextView
+                    android:id="@+id/TVTextoTemporizadorActivo3"
+                    android:layout_width="210dp"
+                    android:layout_height="match_parent"
+                    android:autoSizeTextType="uniform"
+                    android:autoSizeMinTextSize="8sp"
+                    android:autoSizeMaxTextSize="22sp"
+                    android:autoSizeStepGranularity="1sp"
+                    android:ellipsize="none"
+                    android:gravity="center"
+                    android:layout_gravity="center_vertical|start"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:padding="2dp"
+                    android:text="Temporizador1 pandebonos"/>
+                <TextView
+                    android:id="@+id/TVTiempoTemporizadorActivo3"
+                    android:layout_width="100dp"
+                    android:layout_height="match_parent"
+                    android:autoSizeTextType="uniform"
+                    android:autoSizeMinTextSize="8sp"
+                    android:autoSizeMaxTextSize="25sp"
+                    android:autoSizeStepGranularity="1sp"
+                    android:ellipsize="none"
+                    android:gravity="center"
+                    android:layout_gravity="center_vertical|end"
+                    android:text="00:00:00"
+                    android:paddingHorizontal="5dp"
+                    android:layout_marginVertical="5dp"
+                    android:background="@drawable/boton1"
+                    android:backgroundTint="?attr/android:colorBackground"
+                    android:textColor="?attr/colorOnBackground"/>
+            </FrameLayout>
+
+        </LinearLayout>
         
     </FrameLayout>
 

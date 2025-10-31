@@ -1,13 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center"
-    android:textSize="22dp"
-    android:paddingTop="5dp"
-    android:paddingBottom="5dp"
-    android:clickable="true"
-    android:focusable="true"
-    android:longClickable="true">
-
-</TextView>
+    android:layout_height="40dp">
+    <TextView
+        android:id="@+id/TVPonerTextoEtiquetaNueva"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textSize="22dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:longClickable="true">
+    </TextView>
+    <View
+        android:id="@+id/VOscurecerTemporizador"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#C4C4C4"
+        android:visibility="gone"
+        android:alpha="0.5"
+        android:elevation="2dp"/>
+    <View
+        android:id="@+id/TVCancelarBorrado"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/mas_blanco"
+        android:backgroundTint="@android:color/white"
+        android:visibility="gone"
+        android:layout_gravity="center_vertical|start"
+        android:layout_marginStart="5dp"
+        android:rotation="45"
+        android:clickable="true"
+        android:focusable="true"
+        android:elevation="3dp"/>
+    <View
+        android:id="@+id/IVborrarTemporizador"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/borrar"
+        android:visibility="gone"
+        android:layout_gravity="center_vertical|end"
+        android:layout_marginEnd="5dp"
+        android:backgroundTint="@android:color/holo_red_dark"
+        android:clickable="true"
+        android:focusable="true"
+        android:elevation="4dp"/>
+</FrameLayout>

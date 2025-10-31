@@ -19,6 +19,7 @@ import com.google.gson.Gson
 import java.io.File
 import android.widget.LinearLayout
 import android.animation.ObjectAnimator
+import android.content.Intent
 import android.view.animation.OvershootInterpolator
 import android.widget.TextView
 import android.view.View
@@ -32,7 +33,14 @@ import android.view.inputmethod.InputMethodManager
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import android.view.animation.AccelerateInterpolator
+import androidx.constraintlayout.widget.ConstraintSet
 import kotlinx.serialization.Serializable
+import android.graphics.Color
+import android.widget.FrameLayout
+import android.widget.HorizontalScrollView
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import kotlin.sequences.forEach
 
 @Serializable
 data class Ingrediente(
@@ -65,7 +73,6 @@ data class RecetaWrapper(
 data class MojeWrapper(
     val moje: Moje
 )
-
 // 👇 2️⃣ ViewModel (también afuera del fragment)
 class RecetasViewModel : ViewModel() {
     var receta: List<Receta>? = null
@@ -73,7 +80,6 @@ class RecetasViewModel : ViewModel() {
 class MojeViewModel : ViewModel() {
     var moje: MutableList<Moje> = mutableListOf()
 }
-
 class MainActivity : AppCompatActivity() {
 
     private lateinit var drawerLayout: DrawerLayout
@@ -133,6 +139,8 @@ class MainActivity : AppCompatActivity() {
         }
         // endregion
 
+        //region 🔹 Configuración del tema y menu desplegable
+
         // --- INICIO DE LOS CAMBIOS DE TEMA ---
         // 2. INICIALIZA Y APLICA EL TEMA GUARDADO ANTES DE NADA
         themeManager = ThemeManager(this)
@@ -154,8 +162,6 @@ class MainActivity : AppCompatActivity() {
 
         // 1. Configuración del Toggle
         // Asegúrate de que el listener se configure de esta manera
-
-
 
         toggle = ActionBarDrawerToggle(
             this,
@@ -210,6 +216,22 @@ class MainActivity : AppCompatActivity() {
             themeManager.saveTheme(ThemeManager.Theme.LIGHT)
         }
 
+        //endregion
+
+        //region 🔹 recargar temporizadores activos
+
+        //endregion
+
+        //subuda de recetas la primera vez
+        /*btn3.setOnClickListener {
+            lifecycleScope.launchWhenCreated {
+                val recetasLocales = viewModel.receta
+                recetasLocales?.forEach { receta ->
+                    SupabaseClient.client.postgrest["recetas"].insert(receta)
+                }
+            }
+        }*/
+
         //listener del boton de atras
         supportFragmentManager.addOnBackStackChangedListener {
             val stackHeight = supportFragmentManager.backStackEntryCount
@@ -231,16 +253,6 @@ class MainActivity : AppCompatActivity() {
         val btnMoje = findViewById<TextView>(R.id.TVBotonMoje)
         val btnTiempo = findViewById<TextView>(R.id.TVBotonTiempo)
 
-        //subuda de recetas la primera vez
-        /*btn3.setOnClickListener {
-            lifecycleScope.launchWhenCreated {
-                val recetasLocales = viewModel.receta
-                recetasLocales?.forEach { receta ->
-                    SupabaseClient.client.postgrest["recetas"].insert(receta)
-                }
-            }
-        }*/
-
         btnPrincipal.setOnClickListener {
             val rotation = if (menuAbierto) 0f else 45f
             val rotate = ObjectAnimator.ofFloat(btnPrincipal, "rotation", rotation)
@@ -261,15 +273,16 @@ class MainActivity : AppCompatActivity() {
             menuAbierto = !menuAbierto
         }
 
-        //region contenedor mojes
+        //region 🔹 contenedor mojes
         //cargar recetas en el contenedor invisible
         val menuLayout = findViewById<LinearLayout>(R.id.cajaRecetas)
         updateMenu()
 
-        //boton de mojes
         val bloqueOcultoMoje = findViewById<ConstraintLayout>(R.id.CLMojes)
         val cajaOcultoMoje = findViewById<LinearLayout>(R.id.LLCajaMojes)
         val btnCerrarMojes = findViewById<LinearLayout>(R.id.LLBotonCerrarMojes)
+
+        //boton mostrar contenedor de mojes
         btnMoje.setOnClickListener{
             if (viewModel.receta.isNullOrEmpty()){
                 AlertDialog.Builder(this)
@@ -301,38 +314,6 @@ class MainActivity : AppCompatActivity() {
                     .setInterpolator(OvershootInterpolator()) // pequeño rebote
                     .start()
             }
-        }
-
-        //boton de cerrar mojes
-        btnCerrarMojes.setOnClickListener{
-            btnPrincipal.visibility = View.VISIBLE
-            //quitar seleccion a las recetas en el contenedor oculto mojes
-            val typedValue = android.util.TypedValue()
-            theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
-            for (i in 0 until menuLayout.childCount) {
-                val child = menuLayout.getChildAt(i)
-                child.setBackgroundColor(typedValue.data)
-                child.tag = false
-            }
-
-            val rotation = 0f
-            val rotate = ObjectAnimator.ofFloat(btnCerrarMojes, "rotation", rotation)
-            rotate.duration = 300
-            rotate.interpolator = OvershootInterpolator()
-            rotate.start()
-            cajaOcultoMoje.animate()
-                .scaleX(0.8f)
-                .scaleY(0.8f)
-                .alpha(0f)
-                .setDuration(150)
-                .setInterpolator(AccelerateInterpolator()) // acelera al final
-                .withEndAction {
-                    cajaOcultoMoje.scaleX = 1f  // restaurar para la próxima vez
-                    cajaOcultoMoje.scaleY = 1f
-                    cajaOcultoMoje.alpha = 1f
-                    bloqueOcultoMoje.visibility = View.GONE
-                }
-                .start()
         }
 
         //listener para cambiar el texto al editar la cantidad de mojes
@@ -402,12 +383,69 @@ class MainActivity : AppCompatActivity() {
             }
             Log.d("guardado", "Contenido: ${mojesGuardados}")
         }
+
+        //boton de cerrar mojes
+        btnCerrarMojes.setOnClickListener{
+            btnPrincipal.visibility = View.VISIBLE
+            //quitar seleccion a las recetas en el contenedor oculto mojes
+            val typedValue = android.util.TypedValue()
+            theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
+            for (i in 0 until menuLayout.childCount) {
+                val child = menuLayout.getChildAt(i)
+                child.setBackgroundColor(typedValue.data)
+                child.tag = false
+            }
+
+            val rotation = 0f
+            val rotate = ObjectAnimator.ofFloat(btnCerrarMojes, "rotation", rotation)
+            rotate.duration = 300
+            rotate.interpolator = OvershootInterpolator()
+            rotate.start()
+            cajaOcultoMoje.animate()
+                .scaleX(0.8f)
+                .scaleY(0.8f)
+                .alpha(0f)
+                .setDuration(150)
+                .setInterpolator(AccelerateInterpolator()) // acelera al final
+                .withEndAction {
+                    cajaOcultoMoje.scaleX = 1f  // restaurar para la próxima vez
+                    cajaOcultoMoje.scaleY = 1f
+                    cajaOcultoMoje.alpha = 1f
+                    bloqueOcultoMoje.visibility = View.GONE
+                }
+                .start()
+        }
         // endregion
 
-        //boton de tiempos
+        //region 🔹 Contenedor y acciones temporizadores
+
         val bloqueOcultoTiempos = findViewById<ConstraintLayout>(R.id.CLTiempos)
         val cajaOcultoTiempos = findViewById<LinearLayout>(R.id.LLCajaTiempos)
+
         val btnCerrarTiempos = findViewById<LinearLayout>(R.id.LLBotonCerrarTiempos)
+        val btnIniciar = findViewById<TextView>(R.id.TVBotonIniciarTiempos)
+        val btnAgregarTemporizador = findViewById<View>(R.id.VBotonAgregarTemporizadores)
+        val btnAgregarEtiqueta = findViewById<View>(R.id.VBotonAgregarEtiqueta)
+
+        val horas = findViewById<TextView>(R.id.TVHoras)
+        val minutos = findViewById<TextView>(R.id.TVMinutos)
+        val segundos = findViewById<TextView>(R.id.TVSegundos)
+        val cajaTemporizadores = findViewById<ConstraintLayout>(R.id.CLCajaTemporizadoresGuardados)
+
+        val inflater = layoutInflater
+
+        val typedValue = android.util.TypedValue()
+        val typedValue2 = android.util.TypedValue()
+        theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
+        theme.resolveAttribute(com.google.android.material.R.attr.colorOutline, typedValue2, true)
+
+        val contenedorEtiquetas = findViewById<LinearLayout>(R.id.LLCajaEtiquetas)
+
+        //cargar los temporizadores guardados
+        cargarTemporizadores()
+        //cargar las etiquetas guardadas
+        cargarEtiquetas()
+        //boton mostrar bloque de temporizadores
         btnTiempo.setOnClickListener{
             animateButton(btnTiempo, 0, false)
             animateButton(btnMoje, 50, false)
@@ -440,21 +478,312 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        //boton sin etiqueta
+        val btnSinEtiqueta = findViewById<TextView>(R.id.TVSinEtiqueta)
+        btnSinEtiqueta.setOnClickListener {
+            contenedorEtiquetas.children.forEach { child ->
+                if (child.tag?.toString() == "agregarEtiqueta" || child.tag?.toString() == "VNoColor") return@forEach
+                child.setBackgroundColor(typedValue.data)
+                child.tag = false
+            }
+            btnSinEtiqueta.setBackgroundColor(typedValue2.data)
+            btnSinEtiqueta.tag = true
+        }
+
+        //boton agregar etiquetas
+        btnAgregarEtiqueta.setOnClickListener{
+            val edicionExiste = findViewById<LinearLayout>(R.id.LLcontenedorEdicionEtiquetasNuevas)
+            if (edicionExiste != null){
+                return@setOnClickListener
+            }
+            val altoDP = 1
+            val altoPX = (altoDP * resources.displayMetrics.density).toInt()
+            val params = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                altoPX // alto en píxeles, por ejemplo
+            )
+            val index = contenedorEtiquetas.childCount-1
+            val nuevaEtiquetaEdicion = inflater.inflate(R.layout.bloque_editar_nueva_etiqueta, contenedorEtiquetas, false)
+            val btnCancelarNuevaEtiqueta = nuevaEtiquetaEdicion.findViewById<View>(R.id.TVCancelarNuevaEtiqueta)
+            val btnAgregarNuevaEtiqueta = nuevaEtiquetaEdicion.findViewById<View>(R.id.IVGuardarNuevaEtiqueta)
+            btnCancelarNuevaEtiqueta.setOnClickListener{
+                contenedorEtiquetas.removeView(nuevaEtiquetaEdicion)
+            }
+            btnAgregarNuevaEtiqueta.setOnClickListener {
+                val nuevoView = View(this)
+                nuevoView.layoutParams = params
+                nuevoView.setBackgroundColor(Color.parseColor("#000000"))
+                nuevoView.tag = "VNoColor"
+                val nuevaEtiqueta = inflater.inflate(R.layout.bloque_etiquetas_temporizadores, contenedorEtiquetas, false)
+                val etiquetaOscurecer = nuevaEtiqueta.findViewById<View>(R.id.VOscurecerTemporizador)
+                val etiquetaCancelar = nuevaEtiqueta.findViewById<View>(R.id.TVCancelarBorrado)
+                val etiquetaBorrar = nuevaEtiqueta.findViewById<View>(R.id.IVborrarTemporizador)
+                val textview1 = nuevaEtiqueta.findViewById<TextView>(R.id.TVPonerTextoEtiquetaNueva)
+                textview1.text = nuevaEtiquetaEdicion.findViewById<TextView>(R.id.ETNuevaEtiqueta).text
+                textview1.setOnClickListener {
+                    contenedorEtiquetas.children.forEach { child ->
+                        if (child.tag?.toString() == "agregarEtiqueta" || child.tag?.toString() == "VNoColor") return@forEach
+                        child.setBackgroundColor(typedValue.data)
+                        child.tag = false
+                    }
+                    nuevaEtiqueta.setBackgroundColor(typedValue2.data)
+                    nuevaEtiqueta.tag = true
+                }
+                textview1.setOnLongClickListener {
+                    etiquetaOscurecer.visibility = View.VISIBLE
+                    etiquetaCancelar.visibility = View.VISIBLE
+                    etiquetaBorrar.visibility = View.VISIBLE
+                    false
+                }
+                etiquetaCancelar.setOnClickListener{
+                    etiquetaOscurecer.visibility = View.GONE
+                    etiquetaCancelar.visibility = View.GONE
+                    etiquetaBorrar.visibility = View.GONE
+                }
+                etiquetaBorrar.setOnClickListener{
+                    contenedorEtiquetas.removeView(nuevaEtiqueta)
+                    val gson = GsonBuilder().setPrettyPrinting().create()
+                    val archivo = File(filesDir, "etiquetas.json")
+                    val etiquetas: MutableList<String> = if (archivo.exists() && archivo.readText().isNotBlank()) {
+                        val gson = Gson()
+                        val tipoLista = object : TypeToken<MutableList<String>>() {}.type
+                        gson.fromJson(archivo.readText(), tipoLista)
+                    } else mutableListOf()
+                    etiquetas.remove(textview1.text.toString())
+                    archivo.writeText(gson.toJson(etiquetas))
+                }
+                contenedorEtiquetas.removeView(nuevaEtiquetaEdicion)
+                contenedorEtiquetas.addView(nuevaEtiqueta, index)
+                contenedorEtiquetas.addView(nuevoView, index+1)
+                guardarJsonSencillo("etiquetas",textview1.text.toString())
+            }
+            contenedorEtiquetas.addView(nuevaEtiquetaEdicion, index)
+        }
+
         //boton agregar temporizadores
-        val btnAgregarTemporizador = findViewById<View>(R.id.VBotonAgregarTemporizadores)
+        btnAgregarTemporizador.setOnClickListener{
+            val temporizadorArreglado = convertirTiempo(horas.text.toString(), minutos.text.toString(), segundos.text.toString())
+            val subtag = temporizadorArreglado.replace(":","")
+            val tag = subtag.toInt()
+            if (temporizadorArreglado == "00:00:00"){
+                return@setOnClickListener
+            }
+            val hijoRepetido = cajaTemporizadores.children.firstOrNull { it.tag == tag }
+            if (hijoRepetido != null) {return@setOnClickListener}
+            val temporizador = inflater.inflate(R.layout.bloque_temporizadores_guardados, cajaTemporizadores, false)
+            val ponerTexto = temporizador.findViewById<TextView>(R.id.TVNuevoTemporizador)
+            ponerTexto.text = temporizadorArreglado
+            temporizador.id = View.generateViewId()
+            temporizador.tag = tag
+            temporizador.setOnClickListener{
+                val trozos = subtag.chunked(2)
+                horas.text = trozos[0]
+                minutos.text = trozos[1]
+                segundos.text = trozos[2]
+            }
+            val btnBorrado = temporizador.findViewById<View>(R.id.IVborrarTemporizador)
+            val btnCancelar = temporizador.findViewById<View>(R.id.TVCancelarBorrado)
+            val oscurecerTemporizador = temporizador.findViewById<View>(R.id.VOscurecerTemporizador)
+            temporizador.setOnLongClickListener{
+                btnBorrado.visibility = View.VISIBLE
+                btnCancelar.visibility = View.VISIBLE
+                oscurecerTemporizador.visibility = View.VISIBLE
+                temporizador.isClickable = false
+                false
+            }
+            btnCancelar.setOnClickListener{
+                btnBorrado.visibility = View.GONE
+                btnCancelar.visibility = View.GONE
+                oscurecerTemporizador.visibility = View.GONE
+                temporizador.isClickable = true
+            }
+            btnBorrado.setOnClickListener{
+                cajaTemporizadores.removeView(temporizador)
+                val gson = GsonBuilder().setPrettyPrinting().create()
+                val archivo = File(filesDir, "temporizadores.json")
+                val temporizadores: MutableList<String> = if (archivo.exists() && archivo.readText().isNotBlank()) {
+                    val gson = Gson()
+                    val tipoLista = object : TypeToken<MutableList<String>>() {}.type
+                    gson.fromJson(archivo.readText(), tipoLista)
+                } else mutableListOf()
+                temporizadores.remove(temporizadorArreglado)
+                archivo.writeText(gson.toJson(temporizadores))
+                ordenarTemporizadores(cajaTemporizadores,findViewById(R.id.VBotonAgregarTemporizadores))
+            }
+            cajaTemporizadores.addView(temporizador)
+            ordenarTemporizadores(cajaTemporizadores,btnAgregarTemporizador)
+            guardarJsonSencillo("temporizadores",temporizadorArreglado)
+        }
+
+        val cajaTemporizadoresCorriendo = findViewById<LinearLayout>(R.id.LLCajaTemporizadoresActivos)
+        //quitar luego de terminar la funcion de ordena
+        val temporizadorCorriendo1 = findViewById<FrameLayout>(R.id.LLTemporizadorActivo1)
+        val temporizadorCorriendo2 = findViewById<FrameLayout>(R.id.LLTemporizadorActivo2)
+        val temporizadorCorriendo3 = findViewById<FrameLayout>(R.id.LLTemporizadorActivo3)
+
+        val cajaTemporizadoresCorriendoExtra = findViewById<LinearLayout>(R.id.LLCajaTemporizadoresExtraHorizontal)
+        val scrollTemporizadoresExtra = findViewById<HorizontalScrollView>(R.id.HSTemporizadoresExtra)
+        val btnMinimizar = findViewById<View>(R.id.VBotonMinimizar)
+
+        //boton iniciar temporizador
+        btnIniciar.setOnClickListener{
+            //cancela en caso de que sea 0
+            if (horas.text == "00" && minutos.text == "00" && segundos.text == "00"){
+                return@setOnClickListener
+            }
+            //obtiene el nombre de la etiqueta
+            //💾 variable de salida nombreDeEtiqueta
+            lateinit var nombreDeEtiqueta: String
+            val etiquetaSeleccionada = contenedorEtiquetas.findViewWithTag<View>(true)
+            when{
+                etiquetaSeleccionada is TextView -> {
+                    nombreDeEtiqueta = etiquetaSeleccionada.text.toString()
+                }
+                etiquetaSeleccionada is FrameLayout -> {
+                    nombreDeEtiqueta = etiquetaSeleccionada.findViewById<TextView>(R.id.TVPonerTextoEtiquetaNueva).text.toString()
+                }
+                else -> {
+                    nombreDeEtiqueta = "Sin etiqueta"
+                }
+            }
+            //calcula el tiempo total en segundos
+            //💾 variable de salida tiempoTotalSegundos
+            val segundosSumar = segundos.text.toString().toInt()
+            val minutosSumar = minutos.text.toString().toInt()
+            val horasSumar = horas.text.toString().toInt()
+            val tiempoTotalSegundos = segundosSumar+(minutosSumar*60)+(horasSumar*3600)
+
+            //aqui ya se pone la funcion de ordenar
+
+
+
+
+            //calcula el texto numerico a poner en el temporizador
+            //💾 variable de salida tiempoEnTexto
+            lateinit var tiempoEnTexto: String
+            if(horas.text == "00" && minutos.text == "00"){
+                tiempoEnTexto = segundos.text.toString()
+            }else if (horas.text == "00"){
+                tiempoEnTexto = "${minutos.text}:${segundos.text}"
+            }else{
+                tiempoEnTexto = "${horas.text}:${minutos.text}:${segundos.text}"
+            }
+
+
+
+            //variables para enviar al service
+            //💾 💾 variables de salida idEtiquetaTemporizador y idTiempoTemporizador
+            lateinit var idEtiquetaTemporizador: String
+            var idTiempoTemporizador = 0
+
+            val temp1 = (R.id.TVTextoTemporizadorActivo1).toString()
+            val temp2 = (R.id.TVTextoTemporizadorActivo2).toString()
+            val temp3 = (R.id.TVTextoTemporizadorActivo3).toString()
+
+            //realiza algunos calculos y asigna el contenedor de tiempos a textoTemporizador para luego asignarle el tiempo del temporizador
+            //💾 variable de salida ponerTiempoEnTextoTemporizador
+            val ponerTiempoEnTextoTemporizador: TextView = when{
+                temporizadorCorriendo1.visibility == View.GONE -> {
+                    //datos para enviar al service
+                    idEtiquetaTemporizador = temp1
+                    idTiempoTemporizador = R.id.TVTiempoTemporizadorActivo1
+                    temporizadorCorriendo1.visibility = View.VISIBLE
+                    //pone la etiqueta en el textview correspondiente
+                    val textoEtiqueta = temporizadorCorriendo1.findViewById<TextView>(R.id.TVTextoTemporizadorActivo1)
+                    textoEtiqueta.text = etiqueta
+                    //devuelve el contenedor de tiempos para asignar el tiempo despues
+                    temporizadorCorriendo1.findViewById<TextView>(R.id.TVTiempoTemporizadorActivo1)
+                }
+                temporizadorCorriendo2.visibility == View.GONE -> {
+                    //datos para enviar al service
+                    idEtiquetaTemporizador = temp2
+                    idTiempoTemporizador = R.id.TVTiempoTemporizadorActivo2
+                    temporizadorCorriendo2.visibility = View.VISIBLE
+                    //pone la etiqueta en el textview correspondiente
+                    val textoEtiqueta = temporizadorCorriendo2.findViewById<TextView>(R.id.TVTextoTemporizadorActivo2)
+                    textoEtiqueta.text = etiqueta
+                    //devuelve el contenedor de tiempos para asignar el tiempo despues
+                    temporizadorCorriendo2.findViewById<TextView>(R.id.TVTiempoTemporizadorActivo2)
+                }
+                temporizadorCorriendo3.visibility == View.GONE -> {
+                    //datos para enviar al service
+                    idEtiquetaTemporizador = temp3
+                    idTiempoTemporizador = R.id.TVTiempoTemporizadorActivo3
+                    temporizadorCorriendo3.visibility = View.VISIBLE
+                    //pone la etiqueta en el textview correspondiente
+                    val textoEtiqueta = temporizadorCorriendo3.findViewById<TextView>(R.id.TVTextoTemporizadorActivo3)
+                    textoEtiqueta.text = etiqueta
+                    //devuelve el contenedor de tiempos para asignar el tiempo despues
+                    temporizadorCorriendo3.findViewById<TextView>(R.id.TVTiempoTemporizadorActivo3)
+                }
+                else -> {
+                    if (scrollTemporizadoresExtra.visibility == View.GONE){
+                        scrollTemporizadoresExtra.visibility = View.VISIBLE
+                    }
+                    //infla el nuevo contenedor
+                    val nuevoTemporizadorExtra = inflater.inflate(R.layout.bloque_temporizador_extra_horizontal, cajaTemporizadoresCorriendoExtra, false)
+                    nuevoTemporizadorExtra.id = View.generateViewId()
+                    //asigna el id del nuevo contenedor para enviarlo
+                    idTiempoTemporizador = nuevoTemporizadorExtra.id
+
+                    nuevoTemporizadorExtra.tag = tiempoTotalSegundos
+                    idEtiquetaTemporizador = "extra"
+
+                    var idCambio = ""
+                    var enviarTexto = ""
+                    var enviarTiempo = 0
+                    var ordenar = tiempoTotalSegundos
+                    //obtiene la lista de temporizadores y hace un for
+                    val mapaActual: Map<String, List<Any>> = TimerRepository.temporizadores.value
+                    for (entry in mapaActual) {
+                        val entradaTexto = entry.value[1].toString()
+                        if (entradaTexto in listOf(temp1,temp2,temp3) && entry.value[3].toString().toInt() > ordenar){
+                            ordenar = entry.value[3].toString().toInt()
+                            idEtiquetaTemporizador = entradaTexto
+                            idTiempoTemporizador = entry.value[2].toString().toInt()
+                            idCambio = entry.key
+                            nuevoTemporizadorExtra.tag = ordenar
+                            enviarTiempo = nuevoTemporizadorExtra.id
+                            enviarTexto = "extra"
+                        }
+                    }
+                    var index = 0
+                    for (i in 0 until cajaTemporizadoresCorriendoExtra.childCount) {
+                        if (cajaTemporizadoresCorriendoExtra.getChildAt(i).tag.toString().toInt() < tiempoTotalSegundos){
+                            index = i
+                        }
+                    }
+
+                    cajaTemporizadoresCorriendoExtra.addView(nuevoTemporizadorExtra,index)
+                    if (idCambio != ""){
+                        val intent2 = Intent(this, TimerService::class.java)
+                        intent2.putExtra("accion", "ORDENAR")
+                        intent2.putExtra("id", idCambio)
+                        intent2.putExtra("contenedorEtiqueta", enviarTexto)
+                        intent2.putExtra("contenedorTiempoTemporizador", enviarTiempo)
+                        startForegroundService(intent2)
+                        findViewById<TextView>(idEtiquetaTemporizador.toInt()).text = etiqueta
+                        findViewById<TextView>(idTiempoTemporizador)
+                    }else{
+                        nuevoTemporizadorExtra as TextView
+                    }
+                }
+            }
+            ponerTiempoEnTextoTemporizador.text = tiempoEnTexto
+
+            //iniciar el nuevo temporizador
+            val intent = Intent(this, TimerService::class.java)
+            intent.putExtra("accion", "INICIAR")
+            intent.putExtra("tiempo", tiempoTotalSegundos)
+            intent.putExtra("id", etiqueta)
+            intent.putExtra("contenedorEtiqueta", idEtiquetaTemporizador)
+            intent.putExtra("contenedorTiempoTemporizador", idTiempoTemporizador)
+            startForegroundService(intent)
+        }
 
         //boton de cerrar tiempos
         btnCerrarTiempos.setOnClickListener{
             btnPrincipal.visibility = View.VISIBLE
-            //quitar seleccion a las recetas en el contenedor oculto mojes
-            /*val typedValue = android.util.TypedValue()
-            theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
-            for (i in 0 until menuLayout.childCount) {
-                val child = menuLayout.getChildAt(i)
-                child.setBackgroundColor(typedValue.data)
-                child.tag = false
-            }*/
-
             val rotation = 0f
             val rotate = ObjectAnimator.ofFloat(btnCerrarTiempos, "rotation", rotation)
             rotate.duration = 300
@@ -474,9 +803,79 @@ class MainActivity : AppCompatActivity() {
                 }
                 .start()
         }
+        //endregion
+    }
+    private fun ordenarTemporizadoresActivos(nombreDeEtiqueta: String,segundos: Int){
+        //obtiene los temporizadores actuales
+        val temporizadores = TimerRepository.temporizadores.value
+        //comprueba si ya hay etiquetas con ese nombre, de ser asi agrega un numero al final
+        //variable de salida 💾 etiqueta
+        lateinit var etiqueta: String
+        val coincidencias = temporizadores
+            .filterKeys { it.startsWith(nombreDeEtiqueta) }
+        if (coincidencias.isNotEmpty()) {
+            val indiceSinEtiqueta = coincidencias.size + 1
+            etiqueta = "$nombreDeEtiqueta $indiceSinEtiqueta"
+        }else{
+            etiqueta = nombreDeEtiqueta
+        }
 
+        if (temporizadores.size < 3){
+            var temporizadorCorriendo: FrameLayout? = null
+            var contenedorTextoEtiqueta: TextView? = null
+            var contenedorTiempo: TextView? = null
+            when(temporizadores.size){
+                0 -> {
+                    temporizadorCorriendo = findViewById<FrameLayout>(R.id.LLTemporizadorActivo1)
+                    contenedorTextoEtiqueta = temporizadorCorriendo.findViewById<TextView>(R.id.TVTextoTemporizadorActivo1)
+                    contenedorTiempo = temporizadorCorriendo.findViewById<TextView>(R.id.TVTiempoTemporizadorActivo1)
+                }
+                1 -> {
+                    temporizadorCorriendo = findViewById<FrameLayout>(R.id.LLTemporizadorActivo2)
+                    contenedorTextoEtiqueta = temporizadorCorriendo.findViewById<TextView>(R.id.TVTextoTemporizadorActivo2)
+                    contenedorTiempo = temporizadorCorriendo.findViewById<TextView>(R.id.TVTiempoTemporizadorActivo2)
+                }
+                2 -> {
+                    temporizadorCorriendo = findViewById<FrameLayout>(R.id.LLTemporizadorActivo3)
+                    contenedorTextoEtiqueta = temporizadorCorriendo.findViewById<TextView>(R.id.TVTextoTemporizadorActivo3)
+                    contenedorTiempo = temporizadorCorriendo.findViewById<TextView>(R.id.TVTiempoTemporizadorActivo3)
+                }
+            }
+            temporizadorCorriendo?.visibility = View.GONE
+            //pone la etiqueta en el textview correspondiente
+            contenedorTextoEtiqueta?.text = etiqueta
+        }
+
+        val btnMinimizar = findViewById<View>(R.id.VBotonMinimizar)
+        val cajaTemporizadoresCorriendo = findViewById<LinearLayout>(R.id.LLCajaTemporizadoresActivos)
+        //si no habia temporizadores funcionando pone visible el contenedor
+        if (cajaTemporizadoresCorriendo.visibility == View.GONE){
+            cajaTemporizadoresCorriendo.visibility = View.VISIBLE
+        }
+        //pone visible el boton de minimizar
+        btnMinimizar.visibility = View.VISIBLE
     }
 
+    override fun onStart() {
+        super.onStart()
+        // lifecycleScope asegura que la coroutine se cancela automáticamente
+        lifecycleScope.launch {
+            TimerRepository.temporizadorModificado.collect {datos ->
+                if (datos.isNotEmpty()){
+                    if (datos[1].toString() != "extra"){
+                        val temcon = findViewById<TextView>(datos[1].toString().toInt())
+                        temcon.text = datos[4].toString()
+                        temcon.tag = datos[3].toString().toInt()
+                    }
+                    findViewById<TextView>(datos[2].toString().toInt()).text = datos[0].toString()
+                }
+            }
+        }
+    }
+    fun cargarTemporizadoresActivos(){
+
+    }
+    //funcion que quita el focus al oprimir en otros lados de la pantalla
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         if (currentFocus != null) {
             val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
@@ -549,6 +948,7 @@ class MainActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
+    //funcion para animar los botones de mojes, temporizadores y pedidos
     fun animateButton(button: View, delay: Long, show: Boolean) {
         if (show) {
             button.visibility = View.VISIBLE
@@ -578,6 +978,7 @@ class MainActivity : AppCompatActivity() {
                 .start()
         }
     }
+    //funcion que actualiza las recetas en el contenedor de mojes
     fun updateMenu() {
         val menuLayout = findViewById<LinearLayout>(R.id.cajaRecetas)
         menuLayout.removeAllViews()
@@ -605,6 +1006,7 @@ class MainActivity : AppCompatActivity() {
             menuLayout.addView(cadaReceta)
         }
     }
+    //funcion que cambia las cantidades cuando se escrive la cantidad demojes
     private fun cambioCantidadMoje(texto: Float?,menuLayout: LinearLayout) {
         if (texto != null) {
             menuLayout.children.forEach { child ->
@@ -650,7 +1052,7 @@ class MainActivity : AppCompatActivity() {
         } catch (e: Exception) {
             e.printStackTrace()
             AlertDialog.Builder(this)
-                .setMessage("Error al guardar la receta: ${e.message}")
+                .setMessage("Error al guardar : ${e.message}")
                 .setNegativeButton("Ok") { dialog, _ ->
                     dialog.dismiss()
                 }
@@ -661,7 +1063,7 @@ class MainActivity : AppCompatActivity() {
         val fragment = supportFragmentManager.findFragmentByTag("RECETAS_FRAGMENT_TAG") as? recetas
         fragment?.mostrarRecetas()
     }
-    fun numerosTemporizador(vista: TextView){
+    private fun numerosTemporizador(vista: TextView){
         val horas = findViewById<TextView>(R.id.TVHoras)
         val minutos = findViewById<TextView>(R.id.TVMinutos)
         val segundos = findViewById<TextView>(R.id.TVSegundos)
@@ -696,5 +1098,229 @@ class MainActivity : AppCompatActivity() {
         horas.text = hms[0]
         minutos.text = hms[1]
         segundos.text = hms[2]
+    }
+    private fun convertirTiempo(horas: String, minutos: String, segundos: String): String{
+        val sumaSegundos = segundos.toInt()/60
+        var restaSegundos = "${segundos.toInt()-(sumaSegundos*60)}"
+        val totalMinutos = minutos.toInt() + sumaSegundos
+        val sumaMinutos = totalMinutos/60
+        var restaMinutos = "${totalMinutos-(sumaMinutos*60)}"
+        var totalHoras = "${horas.toInt() + sumaMinutos}"
+        if(restaSegundos.length<2){restaSegundos = "0$restaSegundos"}
+        if(restaMinutos.length<2){restaMinutos = "0$restaMinutos"}
+        if(totalHoras.length<2){totalHoras = "0$totalHoras"}
+        return "$totalHoras:$restaMinutos:$restaSegundos"
+    }
+    private fun ordenarTemporizadores (cajaTemporizadores: ConstraintLayout, btnAgregarTemporizador: View){
+        val set = ConstraintSet()
+        set.clone(cajaTemporizadores)
+        lateinit var hijoAnterior: View
+        lateinit var ultimoHijo: View
+        val hijosOrdenados: List<View> = (0 until cajaTemporizadores.childCount)
+            .map { cajaTemporizadores.getChildAt(it) } // obtenemos los hijos
+            .mapNotNull {
+                val tagInt = it.tag as? Int               // cast seguro
+                tagInt?.let { tag -> it to tag }         // solo si tag es Int
+            }
+            .sortedBy { it.second }                       // ordenamos por el valor del tag
+            .map { it.first }
+        var cuentaHijos = 1
+        for (hijo in hijosOrdenados) {
+            if (cuentaHijos % 2 == 0) {
+                if (cuentaHijos == 2){
+                    set.connect(hijo.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                    set.connect(hijo.id, ConstraintSet.START, R.id.GLCajaTemporizadoresGuardados, ConstraintSet.END)
+                    set.connect(hijo.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                }else{
+                    set.connect(hijo.id, ConstraintSet.TOP, hijoAnterior.id, ConstraintSet.BOTTOM)
+                    set.connect(hijo.id, ConstraintSet.START, R.id.GLCajaTemporizadoresGuardados, ConstraintSet.END)
+                    set.connect(hijo.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                }
+                hijoAnterior = hijo
+            }else{
+                if (cuentaHijos == 1){
+                    set.connect(hijo.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+                    set.connect(hijo.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                    set.connect(hijo.id, ConstraintSet.END, R.id.GLCajaTemporizadoresGuardados, ConstraintSet.START)
+                }else{
+                    set.connect(hijo.id, ConstraintSet.TOP, hijoAnterior.id, ConstraintSet.BOTTOM)
+                    set.connect(hijo.id, ConstraintSet.START, ConstraintSet.PARENT_ID, ConstraintSet.START)
+                    set.connect(hijo.id, ConstraintSet.END, R.id.GLCajaTemporizadoresGuardados, ConstraintSet.START)
+                }
+            }
+            ultimoHijo = hijo
+            cuentaHijos++
+        }
+        val margenDp = 10
+        val margenPx = (margenDp * resources.displayMetrics.density).toInt()
+        val totalTemporizadores = cajaTemporizadores.children.count()
+        if(hijosOrdenados.isEmpty()){
+            set.connect(btnAgregarTemporizador.id, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+            set.connect(btnAgregarTemporizador.id, ConstraintSet.START,ConstraintSet.PARENT_ID, ConstraintSet.START)
+            set.connect(btnAgregarTemporizador.id, ConstraintSet.END,  R.id.GLCajaTemporizadoresGuardados, ConstraintSet.START)
+            set.setMargin(btnAgregarTemporizador.id, ConstraintSet.TOP, margenPx)
+        }else{
+            if(totalTemporizadores % 2 ==0 ){
+                set.connect(btnAgregarTemporizador.id, ConstraintSet.TOP, ultimoHijo.id, ConstraintSet.BOTTOM)
+                set.connect(btnAgregarTemporizador.id, ConstraintSet.START,ConstraintSet.PARENT_ID, ConstraintSet.START)
+                set.connect(btnAgregarTemporizador.id, ConstraintSet.END,  R.id.GLCajaTemporizadoresGuardados, ConstraintSet.START)
+                set.setMargin(btnAgregarTemporizador.id, ConstraintSet.TOP, margenPx)
+            }else{
+                set.connect(btnAgregarTemporizador.id, ConstraintSet.TOP, ultimoHijo.id, ConstraintSet.TOP)
+                set.connect(btnAgregarTemporizador.id, ConstraintSet.START, R.id.GLCajaTemporizadoresGuardados, ConstraintSet.START)
+                set.connect(btnAgregarTemporizador.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END)
+                set.setMargin(btnAgregarTemporizador.id, ConstraintSet.TOP, 0)
+            }
+        }
+        set.applyTo(cajaTemporizadores)
+    }
+    fun guardarJsonSencillo(nombreArchivo: String, contenido: String) {
+        val gson = GsonBuilder().setPrettyPrinting().create()
+        val archivo = File(filesDir, "$nombreArchivo.json")
+        val lista: MutableList<String> = try {
+            if (archivo.exists() && archivo.readText().isNotBlank()) {
+                val tipoLista = object : TypeToken<MutableList<String>>() {}.type
+                gson.fromJson(archivo.readText(), tipoLista)
+            } else mutableListOf()
+        } catch (e: Exception) {
+            mutableListOf()
+        }
+
+        lista.add(contenido)
+
+        try {
+            archivo.writeText(gson.toJson(lista))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+    private fun cargarTemporizadores() {
+        val archivo = File(filesDir, "temporizadores.json")
+        val temporizadores: MutableList<String> = if (archivo.exists() && archivo.readText().isNotBlank()) {
+            val gson = Gson()
+            val tipoLista = object : TypeToken<MutableList<String>>() {}.type
+            gson.fromJson(archivo.readText(), tipoLista)
+        } else mutableListOf()
+        if (temporizadores.isEmpty()) return
+        val cajaTemporizadores = findViewById<ConstraintLayout>(R.id.CLCajaTemporizadoresGuardados)
+        val inflater = layoutInflater
+        var horas = findViewById<TextView>(R.id.TVHoras)
+        var minutos = findViewById<TextView>(R.id.TVMinutos)
+        var segundos = findViewById<TextView>(R.id.TVSegundos)
+        for (temporizador in temporizadores) {
+            val temporizadorView = inflater.inflate(R.layout.bloque_temporizadores_guardados, cajaTemporizadores, false)
+            temporizadorView.findViewById<TextView>(R.id.TVNuevoTemporizador).text = temporizador
+            val subtag = temporizador.replace(":","")
+            temporizadorView.id = View.generateViewId()
+            val tag = subtag.toInt()
+            temporizadorView.tag = tag
+            temporizadorView.setOnClickListener{
+                val trozos = subtag.chunked(2)
+                horas.text = trozos[0]
+                minutos.text = trozos[1]
+                segundos.text = trozos[2]
+            }
+            val btnBorrado = temporizadorView.findViewById<View>(R.id.IVborrarTemporizador)
+            val btnCancelar = temporizadorView.findViewById<View>(R.id.TVCancelarBorrado)
+            val oscurecerTemporizador = temporizadorView.findViewById<View>(R.id.VOscurecerTemporizador)
+            temporizadorView.setOnLongClickListener{
+                btnBorrado.visibility = View.VISIBLE
+                btnCancelar.visibility = View.VISIBLE
+                oscurecerTemporizador.visibility = View.VISIBLE
+                temporizadorView.isClickable = false
+                false
+            }
+            btnCancelar.setOnClickListener{
+                btnBorrado.visibility = View.GONE
+                btnCancelar.visibility = View.GONE
+                oscurecerTemporizador.visibility = View.GONE
+                temporizadorView.isClickable = true
+            }
+            btnBorrado.setOnClickListener{
+                cajaTemporizadores.removeView(temporizadorView)
+                temporizadores.remove(temporizador)
+                val gson = GsonBuilder().setPrettyPrinting().create()
+                val archivo = File(filesDir, "temporizadores.json")
+                archivo.writeText(gson.toJson(temporizadores))
+                ordenarTemporizadores(cajaTemporizadores,findViewById(R.id.VBotonAgregarTemporizadores))
+            }
+            cajaTemporizadores.addView(temporizadorView)
+        }
+        ordenarTemporizadores(cajaTemporizadores,findViewById(R.id.VBotonAgregarTemporizadores))
+    }
+    private fun cargarEtiquetas() {
+        val archivo = File(filesDir, "etiquetas.json")
+        val etiquetas: MutableList<String> =
+            if (archivo.exists() && archivo.readText().isNotBlank()) {
+                val gson = Gson()
+                val tipoLista = object : TypeToken<MutableList<String>>() {}.type
+                gson.fromJson(archivo.readText(), tipoLista)
+            } else mutableListOf()
+        if (etiquetas.isEmpty()) return
+        val inflater = layoutInflater
+        val contenedorEtiquetas = findViewById<LinearLayout>(R.id.LLCajaEtiquetas)
+        val index = contenedorEtiquetas.childCount-1
+        val altoDP = 1
+        val altoPX = (altoDP * resources.displayMetrics.density).toInt()
+        val params = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            altoPX // alto en píxeles, por ejemplo
+        )
+        val typedValue = android.util.TypedValue()
+        val typedValue2 = android.util.TypedValue()
+        theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
+        theme.resolveAttribute(com.google.android.material.R.attr.colorOutline, typedValue2, true)
+
+        for (etiqueta in etiquetas) {
+            val nuevoView = View(this)
+            nuevoView.layoutParams = params
+            nuevoView.setBackgroundColor(Color.parseColor("#000000"))
+            nuevoView.tag = "VNoColor"
+            val nuevaEtiqueta = inflater.inflate(
+                R.layout.bloque_etiquetas_temporizadores,
+                contenedorEtiquetas,
+                false
+            )
+            val etiquetaOscurecer = nuevaEtiqueta.findViewById<View>(R.id.VOscurecerTemporizador)
+            val etiquetaCancelar = nuevaEtiqueta.findViewById<View>(R.id.TVCancelarBorrado)
+            val etiquetaBorrar = nuevaEtiqueta.findViewById<View>(R.id.IVborrarTemporizador)
+            val textview1 = nuevaEtiqueta.findViewById<TextView>(R.id.TVPonerTextoEtiquetaNueva)
+            textview1.text = etiqueta
+            textview1.setOnClickListener {
+                contenedorEtiquetas.children.forEach { child ->
+                    if (child.tag?.toString() == "agregarEtiqueta" || child.tag?.toString() == "VNoColor") return@forEach
+                    child.setBackgroundColor(typedValue.data)
+                    child.tag = false
+                }
+                nuevaEtiqueta.setBackgroundColor(typedValue2.data)
+                nuevaEtiqueta.tag = true
+            }
+            textview1.setOnLongClickListener {
+                etiquetaOscurecer.visibility = View.VISIBLE
+                etiquetaCancelar.visibility = View.VISIBLE
+                etiquetaBorrar.visibility = View.VISIBLE
+                false
+            }
+            etiquetaCancelar.setOnClickListener {
+                etiquetaOscurecer.visibility = View.GONE
+                etiquetaCancelar.visibility = View.GONE
+                etiquetaBorrar.visibility = View.GONE
+            }
+            etiquetaBorrar.setOnClickListener {
+                contenedorEtiquetas.removeView(nuevaEtiqueta)
+                val gson = GsonBuilder().setPrettyPrinting().create()
+                val archivo = File(filesDir, "etiquetas.json")
+                val etiquetas: MutableList<String> =
+                    if (archivo.exists() && archivo.readText().isNotBlank()) {
+                        val gson = Gson()
+                        val tipoLista = object : TypeToken<MutableList<String>>() {}.type
+                        gson.fromJson(archivo.readText(), tipoLista)
+                    } else mutableListOf()
+                etiquetas.remove(textview1.text.toString())
+                archivo.writeText(gson.toJson(etiquetas))
+            }
+            contenedorEtiquetas.addView(nuevaEtiqueta, index)
+            contenedorEtiquetas.addView(nuevoView, index + 1)
+        }
     }
 }

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LLcontenedorEdicionEtiquetasNuevas"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="50dp">
+    <View
+        android:id="@+id/TVCancelarNuevaEtiqueta"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/mas_blanco"
+        android:backgroundTint="?attr/colorSecondary"
+        android:rotation="45"
+        android:layout_marginStart="5dp"
+        android:clickable="true"
+        android:focusable="true"/>
+    <EditText
+        android:id="@+id/ETNuevaEtiqueta"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:textSize="20dp"
+        android:hint="Etiqueta">
+    </EditText>
+    <View
+        android:id="@+id/IVGuardarNuevaEtiqueta"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center_vertical"
+        android:background="@drawable/aceptar"
+        android:backgroundTint="@android:color/holo_green_light"
+        android:layout_marginEnd="5dp"
+        android:clickable="true"
+        android:focusable="true"/>
+</LinearLayout>
