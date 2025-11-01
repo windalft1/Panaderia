@@ -89,6 +89,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: RecetasViewModel
     private lateinit var viewModel2: MojeViewModel
 
+    private var listaContenedoresTemporizadores: List<Pair<String,String>> = emptyList()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -615,15 +617,8 @@ class MainActivity : AppCompatActivity() {
             guardarJsonSencillo("temporizadores",temporizadorArreglado)
         }
 
-        val cajaTemporizadoresCorriendo = findViewById<LinearLayout>(R.id.LLCajaTemporizadoresActivos)
-        //quitar luego de terminar la funcion de ordena
-        val temporizadorCorriendo1 = findViewById<FrameLayout>(R.id.LLTemporizadorActivo1)
-        val temporizadorCorriendo2 = findViewById<FrameLayout>(R.id.LLTemporizadorActivo2)
-        val temporizadorCorriendo3 = findViewById<FrameLayout>(R.id.LLTemporizadorActivo3)
-
         val cajaTemporizadoresCorriendoExtra = findViewById<LinearLayout>(R.id.LLCajaTemporizadoresExtraHorizontal)
         val scrollTemporizadoresExtra = findViewById<HorizontalScrollView>(R.id.HSTemporizadoresExtra)
-        val btnMinimizar = findViewById<View>(R.id.VBotonMinimizar)
 
         //boton iniciar temporizador
         btnIniciar.setOnClickListener{
@@ -653,132 +648,21 @@ class MainActivity : AppCompatActivity() {
             val horasSumar = horas.text.toString().toInt()
             val tiempoTotalSegundos = segundosSumar+(minutosSumar*60)+(horasSumar*3600)
 
+            var dommy = "0"
+
+            val cantidadTemporizadores = TimerRepository.cantidadTemporizadores.value
+            if (cantidadTemporizadores >= 3){
+                if (scrollTemporizadoresExtra.visibility == View.GONE){
+                    scrollTemporizadoresExtra.visibility = View.VISIBLE
+                }
+                //infla el nuevo contenedor
+                val nuevoTemporizadorExtra = inflater.inflate(R.layout.bloque_temporizador_extra_horizontal, cajaTemporizadoresCorriendoExtra, false)
+                nuevoTemporizadorExtra.id = View.generateViewId()
+                cajaTemporizadoresCorriendoExtra.addView(nuevoTemporizadorExtra)
+                dommy = nuevoTemporizadorExtra.id.toString()
+            }
             //aqui ya se pone la funcion de ordenar
-
-
-
-
-            //calcula el texto numerico a poner en el temporizador
-            //💾 variable de salida tiempoEnTexto
-            lateinit var tiempoEnTexto: String
-            if(horas.text == "00" && minutos.text == "00"){
-                tiempoEnTexto = segundos.text.toString()
-            }else if (horas.text == "00"){
-                tiempoEnTexto = "${minutos.text}:${segundos.text}"
-            }else{
-                tiempoEnTexto = "${horas.text}:${minutos.text}:${segundos.text}"
-            }
-
-
-
-            //variables para enviar al service
-            //💾 💾 variables de salida idEtiquetaTemporizador y idTiempoTemporizador
-            lateinit var idEtiquetaTemporizador: String
-            var idTiempoTemporizador = 0
-
-            val temp1 = (R.id.TVTextoTemporizadorActivo1).toString()
-            val temp2 = (R.id.TVTextoTemporizadorActivo2).toString()
-            val temp3 = (R.id.TVTextoTemporizadorActivo3).toString()
-
-            //realiza algunos calculos y asigna el contenedor de tiempos a textoTemporizador para luego asignarle el tiempo del temporizador
-            //💾 variable de salida ponerTiempoEnTextoTemporizador
-            val ponerTiempoEnTextoTemporizador: TextView = when{
-                temporizadorCorriendo1.visibility == View.GONE -> {
-                    //datos para enviar al service
-                    idEtiquetaTemporizador = temp1
-                    idTiempoTemporizador = R.id.TVTiempoTemporizadorActivo1
-                    temporizadorCorriendo1.visibility = View.VISIBLE
-                    //pone la etiqueta en el textview correspondiente
-                    val textoEtiqueta = temporizadorCorriendo1.findViewById<TextView>(R.id.TVTextoTemporizadorActivo1)
-                    textoEtiqueta.text = etiqueta
-                    //devuelve el contenedor de tiempos para asignar el tiempo despues
-                    temporizadorCorriendo1.findViewById<TextView>(R.id.TVTiempoTemporizadorActivo1)
-                }
-                temporizadorCorriendo2.visibility == View.GONE -> {
-                    //datos para enviar al service
-                    idEtiquetaTemporizador = temp2
-                    idTiempoTemporizador = R.id.TVTiempoTemporizadorActivo2
-                    temporizadorCorriendo2.visibility = View.VISIBLE
-                    //pone la etiqueta en el textview correspondiente
-                    val textoEtiqueta = temporizadorCorriendo2.findViewById<TextView>(R.id.TVTextoTemporizadorActivo2)
-                    textoEtiqueta.text = etiqueta
-                    //devuelve el contenedor de tiempos para asignar el tiempo despues
-                    temporizadorCorriendo2.findViewById<TextView>(R.id.TVTiempoTemporizadorActivo2)
-                }
-                temporizadorCorriendo3.visibility == View.GONE -> {
-                    //datos para enviar al service
-                    idEtiquetaTemporizador = temp3
-                    idTiempoTemporizador = R.id.TVTiempoTemporizadorActivo3
-                    temporizadorCorriendo3.visibility = View.VISIBLE
-                    //pone la etiqueta en el textview correspondiente
-                    val textoEtiqueta = temporizadorCorriendo3.findViewById<TextView>(R.id.TVTextoTemporizadorActivo3)
-                    textoEtiqueta.text = etiqueta
-                    //devuelve el contenedor de tiempos para asignar el tiempo despues
-                    temporizadorCorriendo3.findViewById<TextView>(R.id.TVTiempoTemporizadorActivo3)
-                }
-                else -> {
-                    if (scrollTemporizadoresExtra.visibility == View.GONE){
-                        scrollTemporizadoresExtra.visibility = View.VISIBLE
-                    }
-                    //infla el nuevo contenedor
-                    val nuevoTemporizadorExtra = inflater.inflate(R.layout.bloque_temporizador_extra_horizontal, cajaTemporizadoresCorriendoExtra, false)
-                    nuevoTemporizadorExtra.id = View.generateViewId()
-                    //asigna el id del nuevo contenedor para enviarlo
-                    idTiempoTemporizador = nuevoTemporizadorExtra.id
-
-                    nuevoTemporizadorExtra.tag = tiempoTotalSegundos
-                    idEtiquetaTemporizador = "extra"
-
-                    var idCambio = ""
-                    var enviarTexto = ""
-                    var enviarTiempo = 0
-                    var ordenar = tiempoTotalSegundos
-                    //obtiene la lista de temporizadores y hace un for
-                    val mapaActual: Map<String, List<Any>> = TimerRepository.temporizadores.value
-                    for (entry in mapaActual) {
-                        val entradaTexto = entry.value[1].toString()
-                        if (entradaTexto in listOf(temp1,temp2,temp3) && entry.value[3].toString().toInt() > ordenar){
-                            ordenar = entry.value[3].toString().toInt()
-                            idEtiquetaTemporizador = entradaTexto
-                            idTiempoTemporizador = entry.value[2].toString().toInt()
-                            idCambio = entry.key
-                            nuevoTemporizadorExtra.tag = ordenar
-                            enviarTiempo = nuevoTemporizadorExtra.id
-                            enviarTexto = "extra"
-                        }
-                    }
-                    var index = 0
-                    for (i in 0 until cajaTemporizadoresCorriendoExtra.childCount) {
-                        if (cajaTemporizadoresCorriendoExtra.getChildAt(i).tag.toString().toInt() < tiempoTotalSegundos){
-                            index = i
-                        }
-                    }
-
-                    cajaTemporizadoresCorriendoExtra.addView(nuevoTemporizadorExtra,index)
-                    if (idCambio != ""){
-                        val intent2 = Intent(this, TimerService::class.java)
-                        intent2.putExtra("accion", "ORDENAR")
-                        intent2.putExtra("id", idCambio)
-                        intent2.putExtra("contenedorEtiqueta", enviarTexto)
-                        intent2.putExtra("contenedorTiempoTemporizador", enviarTiempo)
-                        startForegroundService(intent2)
-                        findViewById<TextView>(idEtiquetaTemporizador.toInt()).text = etiqueta
-                        findViewById<TextView>(idTiempoTemporizador)
-                    }else{
-                        nuevoTemporizadorExtra as TextView
-                    }
-                }
-            }
-            ponerTiempoEnTextoTemporizador.text = tiempoEnTexto
-
-            //iniciar el nuevo temporizador
-            val intent = Intent(this, TimerService::class.java)
-            intent.putExtra("accion", "INICIAR")
-            intent.putExtra("tiempo", tiempoTotalSegundos)
-            intent.putExtra("id", etiqueta)
-            intent.putExtra("contenedorEtiqueta", idEtiquetaTemporizador)
-            intent.putExtra("contenedorTiempoTemporizador", idTiempoTemporizador)
-            startForegroundService(intent)
+            ordenarTemporizadoresActivos(nombreDeEtiqueta, tiempoTotalSegundos, dommy)
         }
 
         //boton de cerrar tiempos
@@ -805,9 +689,10 @@ class MainActivity : AppCompatActivity() {
         }
         //endregion
     }
-    private fun ordenarTemporizadoresActivos(nombreDeEtiqueta: String,segundos: Int){
+    private fun ordenarTemporizadoresActivos(nombreDeEtiqueta: String, segundos: Int, idExtra: String? = null){
+        TimerRepository.actualizarCantidadTemporizadores()
         //obtiene los temporizadores actuales
-        val temporizadores = TimerRepository.temporizadores.value
+        val temporizadores = TimerRepository.temporizadores.value.toMutableMap()
         //comprueba si ya hay etiquetas con ese nombre, de ser asi agrega un numero al final
         //variable de salida 💾 etiqueta
         lateinit var etiqueta: String
@@ -820,10 +705,12 @@ class MainActivity : AppCompatActivity() {
             etiqueta = nombreDeEtiqueta
         }
 
+        lateinit var idcontenedorTextoEtiqueta: String
+        lateinit var idcontenedorTiempo: String
         if (temporizadores.size < 3){
-            var temporizadorCorriendo: FrameLayout? = null
-            var contenedorTextoEtiqueta: TextView? = null
-            var contenedorTiempo: TextView? = null
+            lateinit var temporizadorCorriendo: FrameLayout
+            lateinit var contenedorTextoEtiqueta: TextView
+            lateinit var contenedorTiempo: TextView
             when(temporizadores.size){
                 0 -> {
                     temporizadorCorriendo = findViewById<FrameLayout>(R.id.LLTemporizadorActivo1)
@@ -841,9 +728,12 @@ class MainActivity : AppCompatActivity() {
                     contenedorTiempo = temporizadorCorriendo.findViewById<TextView>(R.id.TVTiempoTemporizadorActivo3)
                 }
             }
-            temporizadorCorriendo?.visibility = View.GONE
-            //pone la etiqueta en el textview correspondiente
-            contenedorTextoEtiqueta?.text = etiqueta
+            temporizadorCorriendo.visibility = View.VISIBLE
+            idcontenedorTextoEtiqueta = contenedorTextoEtiqueta.id.toString()
+            idcontenedorTiempo = contenedorTiempo.id.toString()
+        }else{
+            idcontenedorTextoEtiqueta = "extra"
+            idcontenedorTiempo = idExtra.toString()
         }
 
         val btnMinimizar = findViewById<View>(R.id.VBotonMinimizar)
@@ -854,6 +744,41 @@ class MainActivity : AppCompatActivity() {
         }
         //pone visible el boton de minimizar
         btnMinimizar.visibility = View.VISIBLE
+        //agregar el id del contenedor para poner el tiempo y el de la etiqueta o bien extra a la lista para ordenar
+        listaContenedoresTemporizadores = listaContenedoresTemporizadores + (idcontenedorTextoEtiqueta to idcontenedorTiempo)
+        //agregar el id y segundos actualues a la lista de temporizadores
+        temporizadores[etiqueta] = listOf("0", idcontenedorTextoEtiqueta, idcontenedorTiempo, segundos)
+        // ordenar temporizadores por segundos
+        if (temporizadores.size > 1){
+            // 1️⃣ Ordenar según los segundos (índice 3, que es Int)
+            val temporizadoresOrdenados: Map<String, List<Any>> = temporizadores
+                .toList()
+                .sortedBy { (_, lista) -> lista[3] as Int }
+                .toMap()
+
+            // 2️⃣ Reasignar contenedores según listaContenedoresTemporizadores
+            val keysOrdenadas = temporizadoresOrdenados.keys.toList()
+            val valoresOrdenados = temporizadoresOrdenados.values.toList()
+
+            val nuevoMapa: Map<String, List<Any>> = valoresOrdenados
+                .zip(listaContenedoresTemporizadores) // List<Pair<List<Any>, Pair<String,String>>>
+                .mapIndexed { index, pair ->
+                    val (valorAntiguo, contenedor) = pair
+                    val key = keysOrdenadas[index]
+                    key to listOf(valorAntiguo[0], contenedor.first, contenedor.second, valorAntiguo[3])
+                }
+                .toMap()
+            TimerRepository.actualizarTemporizador(nuevoMapa)
+        }else{
+            TimerRepository.actualizarTemporizador(temporizadores)
+        }
+
+        val intent = Intent(this, TimerService::class.java)
+        intent.putExtra("accion", "INICIAR")
+        intent.putExtra("tiempo", segundos)
+        intent.putExtra("id", etiqueta)
+        startForegroundService(intent)
+
     }
 
     override fun onStart() {
@@ -863,9 +788,7 @@ class MainActivity : AppCompatActivity() {
             TimerRepository.temporizadorModificado.collect {datos ->
                 if (datos.isNotEmpty()){
                     if (datos[1].toString() != "extra"){
-                        val temcon = findViewById<TextView>(datos[1].toString().toInt())
-                        temcon.text = datos[4].toString()
-                        temcon.tag = datos[3].toString().toInt()
+                        findViewById<TextView>(datos[1].toString().toInt()).text = datos[4].toString()
                     }
                     findViewById<TextView>(datos[2].toString().toInt()).text = datos[0].toString()
                 }

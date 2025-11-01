@@ -17,8 +17,8 @@ class TimerService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val accion = intent?.getStringExtra("accion")
         val id = intent?.getStringExtra("id") ?: return START_NOT_STICKY
-        val contenedorEtiqueta = intent.getStringExtra("contenedorEtiqueta") ?: ""
-        val contenedorTiempo = intent.getIntExtra("contenedorTiempoTemporizador",0)
+        /*val contenedorEtiqueta = intent.getStringExtra("contenedorEtiqueta") ?: ""
+        val contenedorTiempo = intent.getIntExtra("contenedorTiempoTemporizador",0)*/
 
         when (accion) {
             "DETENER" -> {
@@ -37,23 +37,16 @@ class TimerService : Service() {
                 tiemposRestantes[id] = tiempo
 
                 val job = scope.launch {
-                    var tipo = "principal"
-                    if (contenedorEtiqueta == "extra") tipo="extra"
                     for (i in tiempo downTo -10) {
                         tiemposRestantes[id] = i
-                        if (i == tiempo){
-                            scope.launch {
-                                TimerRepository.registrarTemporizador(id, i,contenedorEtiqueta,contenedorTiempo,tipo)
-                            }
+                        scope.launch {
+                            TimerRepository.actualizarSegundos(id, i)
                         }
                         delay(1000)
-                        scope.launch {
-                            TimerRepository.actualizarSegundos(id, i,tipo)
-                        }
                     }
                     temporizadores.remove(id)
                     tiemposRestantes.remove(id)
-                    TimerRepository.quitarTemporizadorTerminadoEliminado(id)
+                    //TimerRepository.quitarTemporizadorTerminadoEliminado(id)
 
                     if (temporizadores.isEmpty()) {
                         stopForeground(STOP_FOREGROUND_REMOVE)
@@ -61,9 +54,6 @@ class TimerService : Service() {
                     }
                 }
                 temporizadores[id] = job
-            }
-            "ORDENAR" -> {
-                TimerRepository.actualizarTemporizador(id,contenedorEtiqueta,contenedorTiempo)
             }
         }
         startForeground(1, createNotification("Temporizadores activos"))

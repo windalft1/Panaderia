@@ -5,21 +5,10 @@ import kotlinx.coroutines.flow.asStateFlow
 object TimerRepository {
     private val _temporizadorModificado = MutableStateFlow<List<Any>>(emptyList())
     private val _temporizadores = MutableStateFlow<Map<String, List<Any>>>(emptyMap())
+    private val _cantidadTemporizadores = MutableStateFlow(0)
+    val temporizadorModificado = _temporizadorModificado.asStateFlow()
     val temporizadores = _temporizadores.asStateFlow()
-
-    fun registrarTemporizador(id: String, segundos: Int, contenedorEtiqueta: String, contenedorTiempo: Int,tipo: String) {
-        if (tipo == "principal"){
-            _temporizadoresPrincipales.value = _temporizadoresPrincipales.value.toMutableMap().apply {
-
-            }
-        }else{
-            _temporizadoresExtra.value = _temporizadoresExtra.value.toMutableMap().apply {
-                put(id, listOf("00:00:00",contenedorEtiqueta,contenedorTiempo,segundos))
-                actualizarSegundos(id, segundos)
-            }
-        }
-    }
-
+    val cantidadTemporizadores = _cantidadTemporizadores.asStateFlow()
     fun actualizarSegundos(id: String, segundos: Int) {
         lateinit var ponerTiempo : String
 
@@ -33,7 +22,7 @@ object TimerRepository {
         if (minutos.toInt() < 10){
             minutos = "0$minutos"
         }
-        if (segundosRestantes.toInt() < 10){
+        if (segundosRestantes.toInt() < 10 && segundosRestantes.toInt() >= 0){
             segundosRestantes = "0$segundosRestantes"
         }
 
@@ -55,15 +44,11 @@ object TimerRepository {
             }
         }
     }
-    fun actualizarTemporizador(id: String, contenedorEtiqueta: String, contenedorTiempo: Int) {
-        _temporizadores.value = _temporizadores.value.toMutableMap().apply {
-            val listaActual = this[id]?.toMutableList() // convierte la lista inmutable en mutable
-            if (listaActual != null) {
-                listaActual[1] = contenedorEtiqueta
-                listaActual[2] = contenedorTiempo
-                put(id, listaActual) // actualizar el map con la lista modificada
-            }
-        }
+    fun actualizarTemporizador(mapa:Map<String, List<Any>>) {
+        _temporizadores.value = mapa
+    }
+    fun actualizarCantidadTemporizadores() {
+        _cantidadTemporizadores.value = cantidadTemporizadores.value.toString().toInt() + 1
     }
     fun quitarTemporizadorTerminadoEliminado(id: String){
         _temporizadores.value = _temporizadores.value.toMutableMap().apply {

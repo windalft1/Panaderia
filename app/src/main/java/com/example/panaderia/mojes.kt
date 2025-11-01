@@ -48,13 +48,23 @@ class mojes : Fragment() {
 
         viewModel = ViewModelProvider(requireActivity()).get(MojeViewModel::class.java)
         val lista = viewModel.moje ?: emptyList()
+        container = view.findViewById<LinearLayout>(R.id.cargaIngredientes)
+        containerSub = view.findViewById<LinearLayout>(R.id.barraMojes)
+        val textoCentrado = view?.findViewById<TextView>(R.id.TVTextoNoHayMojesNiOTemporizadores)
+        val temporizadores = view?.findViewById<TextView>(R.id.TVTemporizadoresFrangmentMojes)
+        val localInflater = inflater ?: return
         if (lista.isEmpty()) {
-            view.findViewById<LinearLayout>(R.id.cargaIngredientes).visibility = View.GONE
-            view.findViewById<TextView>(R.id.terminarMoje).visibility = View.GONE
+            textoCentrado?.visibility = View.VISIBLE
+            view?.findViewById<LinearLayout>(R.id.cargaIngredientes)?.visibility = View.GONE
+            view?.findViewById<TextView>(R.id.terminarMoje)?.visibility = View.GONE
+            if (TimerRepository.cantidadTemporizadores.value == 0){
+                temporizadores?.visibility = View.GONE
+                textoCentrado?.text = "No hay mojes en preparacion ni temporizadores activos"
+            }else{
+                val bloqueBarraMoje = localInflater.inflate(R.layout.bloque_barra_mojes, containerSub, false)
+                containerSub?.addView(bloqueBarraMoje)
+            }
         } else {
-            container = view.findViewById<LinearLayout>(R.id.cargaIngredientes)
-            containerSub = view.findViewById<LinearLayout>(R.id.barraMojes)
-
             actualizarListaDeMojes()
         }
     }
@@ -64,6 +74,11 @@ class mojes : Fragment() {
         val localContainerSub = containerSub ?: return
         val localInflater = inflater ?: return
 
+        val typedValue = android.util.TypedValue()
+        val typedValue2 = android.util.TypedValue()
+        requireContext().theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
+        requireContext().theme.resolveAttribute(com.google.android.material.R.attr.colorSurfaceVariant, typedValue2, true)
+
         localContainerSub.removeAllViews()
         // Limpia los ingredientes del moje previamente seleccionado
         localContainer.children
@@ -72,12 +87,31 @@ class mojes : Fragment() {
             .forEach { localContainer.removeView(it) }
         val contenedorAbajo = localContainer.findViewById<LinearLayout>(R.id.ponerAntes)
         contenedorAbajo?.removeAllViews()
+        val textoCentrado = view?.findViewById<TextView>(R.id.TVTextoNoHayMojesNiOTemporizadores)
+        textoCentrado?.visibility = View.GONE
 
+        //region boton temporizadores
 
+        //endregion
+        val temporizadores = view?.findViewById<TextView>(R.id.TVTemporizadoresFrangmentMojes)
         var primero = true
         if (viewModel.moje.isEmpty()) {
+            textoCentrado?.visibility = View.VISIBLE
             view?.findViewById<LinearLayout>(R.id.cargaIngredientes)?.visibility = View.GONE
             view?.findViewById<TextView>(R.id.terminarMoje)?.visibility = View.GONE
+            if (TimerRepository.cantidadTemporizadores.value == 0){
+                temporizadores?.visibility = View.GONE
+                textoCentrado?.text = "No hay mojes en preparacion ni temporizadores activos"
+            }else{
+                val bloqueBarraMoje = localInflater.inflate(R.layout.bloque_barra_mojes, localContainerSub, false)
+                localContainerSub.addView(bloqueBarraMoje)
+                bloqueBarraMoje.setOnClickListener{
+                    bloqueBarraMoje.backgroundTintList = ColorStateList.valueOf(typedValue.data)
+                    contenedorAbajo?.removeAllViews()
+                    textoCentrado?.visibility = View.VISIBLE
+                    textoCentrado?.text = "No hay mojes en preparacion"
+                }
+            }
         }
         viewModel.moje?.forEach { moje ->
             val bloqueBarraMoje = localInflater.inflate(R.layout.bloque_barra_mojes, localContainerSub, false)
@@ -106,14 +140,14 @@ class mojes : Fragment() {
         val typedValue = android.util.TypedValue()
         val typedValue2 = android.util.TypedValue()
         val inflater = LayoutInflater.from(requireContext())
-        val tiempos = view?.findViewById<TextView>(R.id.tiempos)
+        /*val tiempos = view?.findViewById<TextView>(R.id.TVTemporizadoresFrangmentMojes)
         if (tiempos != null) {
             tiempos.visibility = View.VISIBLE
-        }
+        }*/
         val terminar = view?.findViewById<TextView>(R.id.terminarMoje)
-        if (terminar != null) {
+        /*if (terminar != null) {
             terminar.visibility = View.VISIBLE
-        }
+        }*/
 
         requireContext().theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
         requireContext().theme.resolveAttribute(com.google.android.material.R.attr.colorSurfaceVariant, typedValue2, true)
