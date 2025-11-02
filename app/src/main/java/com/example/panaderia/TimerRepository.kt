@@ -6,9 +6,11 @@ object TimerRepository {
     private val _temporizadorModificado = MutableStateFlow<List<Any>>(emptyList())
     private val _temporizadores = MutableStateFlow<Map<String, List<Any>>>(emptyMap())
     private val _cantidadTemporizadores = MutableStateFlow(0)
+    private val _pestanaOFlotando = MutableStateFlow("flotandoGrande")
     val temporizadorModificado = _temporizadorModificado.asStateFlow()
     val temporizadores = _temporizadores.asStateFlow()
     val cantidadTemporizadores = _cantidadTemporizadores.asStateFlow()
+    val pestanaOFlotando = _pestanaOFlotando.asStateFlow()
     fun actualizarSegundos(id: String, segundos: Int) {
         lateinit var ponerTiempo : String
 
@@ -35,24 +37,53 @@ object TimerRepository {
         }
 
         _temporizadores.value = _temporizadores.value.toMutableMap().apply {
+            val primerId = this.keys.firstOrNull()
+            val tipo = _pestanaOFlotando.value
             val listaActual = this[id]?.toMutableList() // convierte la lista inmutable en mutable
             if (listaActual != null) {
                 listaActual[0] = ponerTiempo
                 listaActual[3] = segundos
                 put(id, listaActual) // actualizar el map con la lista modificada
-                _temporizadorModificado.value = listaActual + id
+                if (tipo == "flotandoPequeno"){
+                    if (primerId == id){
+                        _temporizadorModificado.value = listaActual + id
+                    }
+                }else{
+                    _temporizadorModificado.value = listaActual + id
+                }
             }
         }
     }
     fun actualizarTemporizador(mapa:Map<String, List<Any>>) {
         _temporizadores.value = mapa
+        _cantidadTemporizadores.value = mapa.size
     }
-    fun actualizarCantidadTemporizadores() {
-        _cantidadTemporizadores.value = cantidadTemporizadores.value.toString().toInt() + 1
+    fun reiniciarTipo(){
+        _pestanaOFlotando.value = "flotandoGrande"
     }
-    fun quitarTemporizadorTerminadoEliminado(id: String){
-        _temporizadores.value = _temporizadores.value.toMutableMap().apply {
-            remove(id)
+    fun cambiarEspera(tipo: String){
+        val valorActual = _pestanaOFlotando.value
+        if ( tipo == "pestana"){
+            if (valorActual == "flotandoGrande"){
+                _pestanaOFlotando.value = "pestanaGrande"
+            }
+            if (valorActual == "flotandoPequeno"){
+                _pestanaOFlotando.value = "pestanaPequeno"
+            }
+        }
+        if(tipo == "flotando"){
+            if (valorActual == "pestanaGrande"){
+                _pestanaOFlotando.value = "flotandoGrande"
+            }
+            if (valorActual == "pestanaPequeno"){
+                _pestanaOFlotando.value = "flotandoPequeno"
+            }
+        }
+        if (tipo == "flotandoGrande"){
+            _pestanaOFlotando.value = "flotandoPequeno"
+        }
+        if (tipo == "flotandoPequeno"){
+            _pestanaOFlotando.value = "flotandoGrande"
         }
     }
 }

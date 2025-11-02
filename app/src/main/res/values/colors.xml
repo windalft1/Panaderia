@@ -14,6 +14,8 @@
     <color name="md_theme_light_mas3">#5E3200</color> <!-- mas3 -->
     <color name="md_theme_light_select">#E6E6E6</color> <!-- select -->
     <color name="md_theme_light_subfondo">#D1D1D1</color> <!-- select -->
+    <color name="md_theme_light_medio">#F3C100</color> <!-- medio temporizador -->
+    <color name="md_theme_light_urgente">#F31B00</color> <!-- urgente -->
 
 
     <!-- Puedes añadir más colores específicos de tu marca aquí -->

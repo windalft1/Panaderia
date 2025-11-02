@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".mojes">
-
+    <!--contenedor donde van las pestañas de los mojes , su contenedor de ingrediente que tambien es el de los temporizadores y el boton de terminar moje-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -40,7 +40,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:gravity="center"
-                android:layout_marginHorizontal="10dp"
+                android:paddingHorizontal="10dp"
+                android:clickable="true"
+                android:focusable="true"
                 android:background="@drawable/bordes_circulo_arriba"
                 android:backgroundTint="?attr/colorSurfaceVariant"
                 android:layout_marginStart="10dp"
@@ -48,8 +50,9 @@
             
         </LinearLayout>
 
-        <!--parte de abajo donde se muestran los mojes  android:backgroundTint="?attr/android:colorBackground"-->
+        <!--parte de abajo donde se muestran los mojes -->
         <ScrollView
+            android:id="@+id/SVMojes"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
@@ -105,6 +108,24 @@
             </LinearLayout>
 
         </ScrollView>
+        <!--scroll para los temporizadores-->
+        <ScrollView
+            android:id="@+id/SVTemporizadores"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:visibility="gone">
+            <LinearLayout
+                android:id="@+id/LLListaTemporizadores"
+                android:layout_gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <!--poner bloque temporizadores-->
+
+            </LinearLayout>
+        </ScrollView>
 
         <!--boton terminar-->
         <LinearLayout
@@ -125,7 +146,7 @@
         </LinearLayout>
         
     </LinearLayout>
-
+    <!--texto para cuando no hay mojes o mojes y temporizadores-->
     <TextView
         android:id="@+id/TVTextoNoHayMojesNiOTemporizadores"
         android:layout_width="wrap_content"

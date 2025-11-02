@@ -14,4 +14,6 @@
     <color name="md_theme_light_mas3">#E8A674</color> <!-- mas3 -->
     <color name="md_theme_light_select">#54443D</color> <!-- select -->
     <color name="md_theme_light_subfondo">#786156</color> <!-- select -->
+    <color name="md_theme_light_medio">#FFFF00</color> <!-- medio temporizador -->
+    <color name="md_theme_light_urgente">#F31B00</color> <!-- urgente -->
 </resources>

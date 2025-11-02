@@ -5,27 +5,24 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import androidx.lifecycle.ViewModelProvider
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.appbar.MaterialToolbar
-import android.widget.FrameLayout
 import android.widget.TextView
-import android.animation.ValueAnimator
-import android.animation.AnimatorListenerAdapter
-import android.animation.Animator
-import android.R.attr.theme
-import android.util.TypedValue
-import android.content.res.Resources
-import android.util.Log
 import androidx.core.view.children
 import kotlin.sequences.forEach
 import android.content.res.ColorStateList
-import com.google.gson.reflect.TypeToken
 import android.content.Context
+import android.content.Intent
+import android.util.Log
+import android.widget.FrameLayout
+import android.widget.HorizontalScrollView
+import android.widget.ScrollView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat.startForegroundService
+import com.google.android.material.appbar.MaterialToolbar
+import kotlin.math.log
 
 
 class mojes : Fragment() {
@@ -47,26 +44,9 @@ class mojes : Fragment() {
         (activity as? AppCompatActivity)?.supportActionBar?.title = "Mojes y tiempos"
 
         viewModel = ViewModelProvider(requireActivity()).get(MojeViewModel::class.java)
-        val lista = viewModel.moje ?: emptyList()
         container = view.findViewById<LinearLayout>(R.id.cargaIngredientes)
         containerSub = view.findViewById<LinearLayout>(R.id.barraMojes)
-        val textoCentrado = view?.findViewById<TextView>(R.id.TVTextoNoHayMojesNiOTemporizadores)
-        val temporizadores = view?.findViewById<TextView>(R.id.TVTemporizadoresFrangmentMojes)
-        val localInflater = inflater ?: return
-        if (lista.isEmpty()) {
-            textoCentrado?.visibility = View.VISIBLE
-            view?.findViewById<LinearLayout>(R.id.cargaIngredientes)?.visibility = View.GONE
-            view?.findViewById<TextView>(R.id.terminarMoje)?.visibility = View.GONE
-            if (TimerRepository.cantidadTemporizadores.value == 0){
-                temporizadores?.visibility = View.GONE
-                textoCentrado?.text = "No hay mojes en preparacion ni temporizadores activos"
-            }else{
-                val bloqueBarraMoje = localInflater.inflate(R.layout.bloque_barra_mojes, containerSub, false)
-                containerSub?.addView(bloqueBarraMoje)
-            }
-        } else {
-            actualizarListaDeMojes()
-        }
+        actualizarListaDeMojes()
     }
 
     fun actualizarListaDeMojes() {
@@ -90,30 +70,104 @@ class mojes : Fragment() {
         val textoCentrado = view?.findViewById<TextView>(R.id.TVTextoNoHayMojesNiOTemporizadores)
         textoCentrado?.visibility = View.GONE
 
-        //region boton temporizadores
+        val pestanaTemporizadores = view?.findViewById<TextView>(R.id.TVTemporizadoresFrangmentMojes)
+        val contenedorListaTemporizadores = view?.findViewById<ScrollView>(R.id.SVTemporizadores)
+        val scrollViewMojes = view?.findViewById<ScrollView>(R.id.SVMojes)
+        val botonTerminarMoje = view?.findViewById<TextView>(R.id.terminarMoje)
+        val linearTemporizadores = view?.findViewById<LinearLayout>(R.id.LLListaTemporizadores)
+        linearTemporizadores?.removeAllViews()
 
-        //endregion
-        val temporizadores = view?.findViewById<TextView>(R.id.TVTemporizadoresFrangmentMojes)
-        var primero = true
-        if (viewModel.moje.isEmpty()) {
-            textoCentrado?.visibility = View.VISIBLE
-            view?.findViewById<LinearLayout>(R.id.cargaIngredientes)?.visibility = View.GONE
-            view?.findViewById<TextView>(R.id.terminarMoje)?.visibility = View.GONE
+        //region  temporizadores
+        //cargar temporizadores
+        pestanaTemporizadores?.visibility = View.VISIBLE
+        val temporizadores = TimerRepository.temporizadores.value.toMutableMap()
+        if (temporizadores.isNotEmpty()){
+            for ((key, value) in temporizadores) {
+                val bloqueTemporizadores = localInflater.inflate(R.layout.bloque_temporizadores_pestana_temporizadores, linearTemporizadores, false)
+                bloqueTemporizadores.id = View.generateViewId()
+                val textViewEtiqueta = bloqueTemporizadores.findViewById<TextView>(R.id.TVEtiquetaTemporizador)
+                textViewEtiqueta.text = key
+                val textViewTiempo = bloqueTemporizadores.findViewById<TextView>(R.id.TVTiempoTemporizador)
+                textViewTiempo.id = View.generateViewId()
+                textViewTiempo.text = value[0].toString()
+                val btnBorrarTemporizador = bloqueTemporizadores.findViewById<View>(R.id.VBorrarTemporizador)
+                btnBorrarTemporizador.setOnClickListener {
+                    (requireActivity() as MainActivity).borrarTemporizador(key)
+                    if (TimerRepository.cantidadTemporizadores.value == 0){
+                        contenedorListaTemporizadores?.visibility = View.GONE
+                        pestanaTemporizadores?.backgroundTintList = ColorStateList.valueOf(typedValue2.data)
+                        TimerRepository.cambiarEspera("flotando")
+                        (requireActivity() as MainActivity).cargarTemporizadoresActivosMojes("quitar")
+                        val intent = Intent(requireContext(), TimerService::class.java)
+                        intent.putExtra("accion", "DETENER")
+                        intent.putExtra("id", key)
+                        requireContext().startForegroundService(intent)
+                        //actualizarListaDeMojes()
+                    }
+                    actualizarListaDeMojes()
+                }
+                val color = bloqueTemporizadores.findViewById<LinearLayout>(R.id.LLTemporizadorPaginaTemporizadores)
+                linearTemporizadores?.addView(bloqueTemporizadores)
+                temporizadores[key] = listOf(value[0],value[1],value[2],value[3],textViewTiempo.id.toString(),value[5],color.id.toString())
+            }
+            TimerRepository.actualizarTemporizador(temporizadores)
+        }
+        //boton pestana temporizadores
+        pestanaTemporizadores?.setOnClickListener {
+            localContainerSub.children.forEach { child ->
+                child.backgroundTintList = ColorStateList.valueOf(typedValue2.data)
+            }
+            pestanaTemporizadores.backgroundTintList = ColorStateList.valueOf(typedValue.data)
+            scrollViewMojes?.visibility = View.GONE
+            botonTerminarMoje?.visibility = View.GONE
             if (TimerRepository.cantidadTemporizadores.value == 0){
-                temporizadores?.visibility = View.GONE
+                textoCentrado?.visibility = View.VISIBLE
+                textoCentrado?.text = "No hay temporizadores corriendo"
+            }else{
+                textoCentrado?.visibility = View.GONE
+                contenedorListaTemporizadores?.visibility = View.VISIBLE
+            }
+
+            TimerRepository.cambiarEspera("pestana")
+            (requireActivity() as MainActivity).cargarTemporizadoresActivosMojes("quitar")
+        }
+        //endregion
+        var primero = true
+        if (contenedorListaTemporizadores?.visibility == View.VISIBLE) {
+            primero = false
+        }
+
+        if (viewModel.moje.isEmpty()) {
+            /*if (contenedorListaTemporizadores?.visibility != View.VISIBLE) {
+                primero = false
+            }*/
+            textoCentrado?.visibility = View.VISIBLE
+            scrollViewMojes?.visibility = View.GONE
+            botonTerminarMoje?.visibility = View.GONE
+            if (TimerRepository.cantidadTemporizadores.value == 0){
+                pestanaTemporizadores?.visibility = View.GONE
                 textoCentrado?.text = "No hay mojes en preparacion ni temporizadores activos"
             }else{
+                textoCentrado?.text = "No hay mojes en preparacion"
                 val bloqueBarraMoje = localInflater.inflate(R.layout.bloque_barra_mojes, localContainerSub, false)
                 localContainerSub.addView(bloqueBarraMoje)
+                if (contenedorListaTemporizadores?.visibility == View.VISIBLE) {
+                    textoCentrado?.visibility = View.GONE
+                }else{
+                    bloqueBarraMoje.backgroundTintList = ColorStateList.valueOf(typedValue.data)
+                }
                 bloqueBarraMoje.setOnClickListener{
                     bloqueBarraMoje.backgroundTintList = ColorStateList.valueOf(typedValue.data)
-                    contenedorAbajo?.removeAllViews()
+                    pestanaTemporizadores?.backgroundTintList = ColorStateList.valueOf(typedValue2.data)
                     textoCentrado?.visibility = View.VISIBLE
+                    contenedorListaTemporizadores?.visibility = View.GONE
                     textoCentrado?.text = "No hay mojes en preparacion"
+                    TimerRepository.cambiarEspera("flotando")
+                    (requireActivity() as MainActivity).cargarTemporizadoresActivosMojes()
                 }
             }
         }
-        viewModel.moje?.forEach { moje ->
+        viewModel.moje.forEach { moje ->
             val bloqueBarraMoje = localInflater.inflate(R.layout.bloque_barra_mojes, localContainerSub, false)
             bloqueBarraMoje.findViewById<TextView>(R.id.textoMoje1).text = moje.nombre + " " + moje.moje
             bloqueBarraMoje.apply {
@@ -125,12 +179,29 @@ class mojes : Fragment() {
             bloqueBarraMoje.backgroundTintList = ColorStateList.valueOf(typedValue2.data)
             bloqueBarraMoje.setOnClickListener{
                 cargarIngredientes(localContainer,localContainerSub,bloqueBarraMoje,moje.nombre,moje)
+                contenedorListaTemporizadores?.visibility = View.GONE
+                pestanaTemporizadores?.backgroundTintList = ColorStateList.valueOf(typedValue2.data)
+                scrollViewMojes?.visibility = View.VISIBLE
+                botonTerminarMoje?.visibility = View.VISIBLE
+                textoCentrado?.visibility = View.GONE
+                TimerRepository.cambiarEspera("flotando")
+                (requireActivity() as MainActivity).cargarTemporizadoresActivosMojes()
             }
             localContainerSub.tag = moje.nombre
             localContainerSub.addView(bloqueBarraMoje)
+            if (contenedorListaTemporizadores?.visibility == View.VISIBLE) {
+                primero = false
+            }
             if (primero) {
                 bloqueBarraMoje.post { // Usa post para asegurar que la vista está lista
                     cargarIngredientes(localContainer,localContainerSub,bloqueBarraMoje,moje.nombre,moje)
+                    contenedorListaTemporizadores?.visibility = View.GONE
+                    pestanaTemporizadores?.backgroundTintList = ColorStateList.valueOf(typedValue2.data)
+                    scrollViewMojes?.visibility = View.VISIBLE
+                    botonTerminarMoje?.visibility = View.VISIBLE
+                    textoCentrado?.visibility = View.GONE
+                    TimerRepository.cambiarEspera("flotando")
+                    (requireActivity() as MainActivity).cargarTemporizadoresActivosMojes()
                 }
                 primero = false
             }
@@ -140,14 +211,7 @@ class mojes : Fragment() {
         val typedValue = android.util.TypedValue()
         val typedValue2 = android.util.TypedValue()
         val inflater = LayoutInflater.from(requireContext())
-        /*val tiempos = view?.findViewById<TextView>(R.id.TVTemporizadoresFrangmentMojes)
-        if (tiempos != null) {
-            tiempos.visibility = View.VISIBLE
-        }*/
         val terminar = view?.findViewById<TextView>(R.id.terminarMoje)
-        /*if (terminar != null) {
-            terminar.visibility = View.VISIBLE
-        }*/
 
         requireContext().theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
         requireContext().theme.resolveAttribute(com.google.android.material.R.attr.colorSurfaceVariant, typedValue2, true)
@@ -246,6 +310,11 @@ class mojes : Fragment() {
                 actionEliminar()
             }
         }
+    }
+    override fun onPause() {
+        super.onPause()
+        // Cuando el fragment deja de estar visible
+        TimerRepository.cambiarEspera("flotando")
     }
 
 }

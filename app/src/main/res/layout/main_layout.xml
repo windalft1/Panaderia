@@ -734,6 +734,8 @@
                     android:visibility="gone"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:background="@drawable/minimizar"
                     android:backgroundTint="?attr/colorPrimary"/>
             </LinearLayout>
@@ -761,8 +763,7 @@
                     android:gravity="center"
                     android:layout_gravity="center_vertical|start"
                     android:textColor="?attr/colorOnPrimary"
-                    android:padding="2dp"
-                    android:text="Temporizador1 pandebonos"/>
+                    android:padding="2dp"/>
                 <TextView
                     android:id="@+id/TVTiempoTemporizadorActivo1"
                     android:layout_width="100dp"
@@ -774,7 +775,6 @@
                     android:ellipsize="none"
                     android:gravity="center"
                     android:layout_gravity="center_vertical|end"
-                    android:text="00:00:00"
                     android:paddingHorizontal="5dp"
                     android:layout_marginVertical="5dp"
                     android:background="@drawable/boton1"
@@ -805,8 +805,7 @@
                     android:gravity="center"
                     android:layout_gravity="center_vertical|start"
                     android:textColor="?attr/colorOnPrimary"
-                    android:padding="2dp"
-                    android:text="Temporizador1 pandebonos"/>
+                    android:padding="2dp"/>
                 <TextView
                     android:id="@+id/TVTiempoTemporizadorActivo2"
                     android:layout_width="100dp"
@@ -818,7 +817,6 @@
                     android:ellipsize="none"
                     android:gravity="center"
                     android:layout_gravity="center_vertical|end"
-                    android:text="00:00:00"
                     android:paddingHorizontal="5dp"
                     android:layout_marginVertical="5dp"
                     android:background="@drawable/boton1"
@@ -849,8 +847,7 @@
                     android:gravity="center"
                     android:layout_gravity="center_vertical|start"
                     android:textColor="?attr/colorOnPrimary"
-                    android:padding="2dp"
-                    android:text="Temporizador1 pandebonos"/>
+                    android:padding="2dp"/>
                 <TextView
                     android:id="@+id/TVTiempoTemporizadorActivo3"
                     android:layout_width="100dp"
@@ -862,13 +859,23 @@
                     android:ellipsize="none"
                     android:gravity="center"
                     android:layout_gravity="center_vertical|end"
-                    android:text="00:00:00"
                     android:paddingHorizontal="5dp"
                     android:layout_marginVertical="5dp"
                     android:background="@drawable/boton1"
                     android:backgroundTint="?attr/android:colorBackground"
                     android:textColor="?attr/colorOnBackground"/>
             </FrameLayout>
+            <TextView
+                android:id="@+id/TVTemporizadorMinimizado"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="30dp"
+                android:gravity="center"
+                android:paddingHorizontal="5dp"
+                android:layout_margin="2dp"
+                android:visibility="gone"
+                android:background="@drawable/bordes_algo_mas_redondos_color_primary"
+                android:textColor="?attr/colorOnBackground"/>
 
         </LinearLayout>
         

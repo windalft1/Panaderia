@@ -4,9 +4,10 @@
     android:layout_width="160dp"
     android:layout_height="match_parent"
     android:background="@drawable/bordes_circulo_arriba"
-    android:backgroundTint="?attr/android:colorBackground"
+    android:backgroundTint="?attr/colorSurfaceVariant"
     android:gravity="center"
     android:maxLines="1"
     android:ellipsize="end"
+    android:text="Mojes"
     android:clickable="true"
     android:focusable="true" />

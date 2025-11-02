@@ -20,6 +20,7 @@ import java.io.File
 import android.widget.LinearLayout
 import android.animation.ObjectAnimator
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.view.animation.OvershootInterpolator
 import android.widget.TextView
 import android.view.View
@@ -39,6 +40,7 @@ import android.graphics.Color
 import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
 import androidx.lifecycle.lifecycleScope
+import io.ktor.websocket.Frame
 import kotlinx.coroutines.launch
 import kotlin.sequences.forEach
 
@@ -652,7 +654,7 @@ class MainActivity : AppCompatActivity() {
 
             val cantidadTemporizadores = TimerRepository.cantidadTemporizadores.value
             if (cantidadTemporizadores >= 3){
-                if (scrollTemporizadoresExtra.visibility == View.GONE){
+                if (scrollTemporizadoresExtra.visibility == View.GONE && TimerRepository.pestanaOFlotando.value == "flotandoGrande"){
                     scrollTemporizadoresExtra.visibility = View.VISIBLE
                 }
                 //infla el nuevo contenedor
@@ -663,6 +665,54 @@ class MainActivity : AppCompatActivity() {
             }
             //aqui ya se pone la funcion de ordenar
             ordenarTemporizadoresActivos(nombreDeEtiqueta, tiempoTotalSegundos, dommy)
+            val fragmentactual = supportFragmentManager.findFragmentById(R.id.fragment_container)
+            if (fragmentactual is mojes) {
+                fragmentactual.actualizarListaDeMojes()
+            }
+            segundos.text="00"
+            minutos.text="00"
+            horas.text="00"
+            btnCerrarTiempos.performClick()
+            //cargarTemporizadoresActivosMojes()
+        }
+
+        val btnMinimizar = findViewById<View>(R.id.VBotonMinimizar)
+        btnMinimizar.setOnClickListener {
+            val tipo = TimerRepository.pestanaOFlotando.value
+            if (tipo == "flotandoGrande"){
+                TimerRepository.cambiarEspera("flotandoGrande")
+                scrollTemporizadoresExtra.visibility = View.GONE
+                findViewById<FrameLayout>(R.id.LLTemporizadorActivo1).visibility = View.GONE
+                findViewById<FrameLayout>(R.id.LLTemporizadorActivo2).visibility = View.GONE
+                findViewById<FrameLayout>(R.id.LLTemporizadorActivo3).visibility = View.GONE
+                findViewById<TextView>(R.id.TVTemporizadorMinimizado).visibility = View.VISIBLE
+                btnMinimizar.rotation = 180f
+            }else{
+                TimerRepository.cambiarEspera("flotandoPequeno")
+                btnMinimizar.rotation = 0f
+                val cantidadTemporizadores = TimerRepository.cantidadTemporizadores.value
+                findViewById<TextView>(R.id.TVTemporizadorMinimizado).visibility = View.GONE
+                when{
+                    cantidadTemporizadores < 2 -> {
+                        findViewById<FrameLayout>(R.id.LLTemporizadorActivo1).visibility = View.VISIBLE
+                    }
+                    cantidadTemporizadores < 3 -> {
+                        findViewById<FrameLayout>(R.id.LLTemporizadorActivo1).visibility = View.VISIBLE
+                        findViewById<FrameLayout>(R.id.LLTemporizadorActivo2).visibility = View.VISIBLE
+                    }
+                    cantidadTemporizadores < 4 -> {
+                        findViewById<FrameLayout>(R.id.LLTemporizadorActivo1).visibility = View.VISIBLE
+                        findViewById<FrameLayout>(R.id.LLTemporizadorActivo2).visibility = View.VISIBLE
+                        findViewById<FrameLayout>(R.id.LLTemporizadorActivo3).visibility = View.VISIBLE
+                    }
+                    else -> {
+                        findViewById<FrameLayout>(R.id.LLTemporizadorActivo1).visibility = View.VISIBLE
+                        findViewById<FrameLayout>(R.id.LLTemporizadorActivo2).visibility = View.VISIBLE
+                        findViewById<FrameLayout>(R.id.LLTemporizadorActivo3).visibility = View.VISIBLE
+                        scrollTemporizadoresExtra.visibility = View.VISIBLE
+                    }
+                }
+            }
         }
 
         //boton de cerrar tiempos
@@ -687,10 +737,13 @@ class MainActivity : AppCompatActivity() {
                 }
                 .start()
         }
+
+        TimerRepository.reiniciarTipo()
+        cargarTemporizadoresAbrirAplicacion()
+
         //endregion
     }
     private fun ordenarTemporizadoresActivos(nombreDeEtiqueta: String, segundos: Int, idExtra: String? = null){
-        TimerRepository.actualizarCantidadTemporizadores()
         //obtiene los temporizadores actuales
         val temporizadores = TimerRepository.temporizadores.value.toMutableMap()
         //comprueba si ya hay etiquetas con ese nombre, de ser asi agrega un numero al final
@@ -707,11 +760,13 @@ class MainActivity : AppCompatActivity() {
 
         lateinit var idcontenedorTextoEtiqueta: String
         lateinit var idcontenedorTiempo: String
-        if (temporizadores.size < 3){
+        lateinit var idcolor: String
+        val cantidad = TimerRepository.cantidadTemporizadores.value
+        if (cantidad < 3){
             lateinit var temporizadorCorriendo: FrameLayout
             lateinit var contenedorTextoEtiqueta: TextView
             lateinit var contenedorTiempo: TextView
-            when(temporizadores.size){
+            when(cantidad){
                 0 -> {
                     temporizadorCorriendo = findViewById<FrameLayout>(R.id.LLTemporizadorActivo1)
                     contenedorTextoEtiqueta = temporizadorCorriendo.findViewById<TextView>(R.id.TVTextoTemporizadorActivo1)
@@ -728,26 +783,31 @@ class MainActivity : AppCompatActivity() {
                     contenedorTiempo = temporizadorCorriendo.findViewById<TextView>(R.id.TVTiempoTemporizadorActivo3)
                 }
             }
-            temporizadorCorriendo.visibility = View.VISIBLE
+            if (TimerRepository.pestanaOFlotando.value == "flotandoGrande"){
+                temporizadorCorriendo.visibility = View.VISIBLE
+            }
             idcontenedorTextoEtiqueta = contenedorTextoEtiqueta.id.toString()
             idcontenedorTiempo = contenedorTiempo.id.toString()
+            idcolor = temporizadorCorriendo.id.toString()
         }else{
             idcontenedorTextoEtiqueta = "extra"
             idcontenedorTiempo = idExtra.toString()
+            idcolor = "extra"
         }
 
         val btnMinimizar = findViewById<View>(R.id.VBotonMinimizar)
         val cajaTemporizadoresCorriendo = findViewById<LinearLayout>(R.id.LLCajaTemporizadoresActivos)
         //si no habia temporizadores funcionando pone visible el contenedor
-        if (cajaTemporizadoresCorriendo.visibility == View.GONE){
+        if (TimerRepository.pestanaOFlotando.value == "flotandoGrande"){
             cajaTemporizadoresCorriendo.visibility = View.VISIBLE
+            btnMinimizar.visibility = View.VISIBLE
         }
         //pone visible el boton de minimizar
-        btnMinimizar.visibility = View.VISIBLE
+
         //agregar el id del contenedor para poner el tiempo y el de la etiqueta o bien extra a la lista para ordenar
         listaContenedoresTemporizadores = listaContenedoresTemporizadores + (idcontenedorTextoEtiqueta to idcontenedorTiempo)
         //agregar el id y segundos actualues a la lista de temporizadores
-        temporizadores[etiqueta] = listOf("0", idcontenedorTextoEtiqueta, idcontenedorTiempo, segundos)
+        temporizadores[etiqueta] = listOf("0", idcontenedorTextoEtiqueta, idcontenedorTiempo, segundos , "0", idcolor,"0")
         // ordenar temporizadores por segundos
         if (temporizadores.size > 1){
             // 1️⃣ Ordenar según los segundos (índice 3, que es Int)
@@ -765,7 +825,7 @@ class MainActivity : AppCompatActivity() {
                 .mapIndexed { index, pair ->
                     val (valorAntiguo, contenedor) = pair
                     val key = keysOrdenadas[index]
-                    key to listOf(valorAntiguo[0], contenedor.first, contenedor.second, valorAntiguo[3])
+                    key to listOf(valorAntiguo[0], contenedor.first, contenedor.second, valorAntiguo[3], valorAntiguo[4], valorAntiguo[5], valorAntiguo[6])
                 }
                 .toMap()
             TimerRepository.actualizarTemporizador(nuevoMapa)
@@ -780,23 +840,212 @@ class MainActivity : AppCompatActivity() {
         startForegroundService(intent)
 
     }
+    fun borrarTemporizador(id: String){
+        val temporizadores = TimerRepository.temporizadores.value.toMutableMap()
+        val cajaTemporizadoresCorriendoExtra = findViewById<LinearLayout>(R.id.LLCajaTemporizadoresExtraHorizontal)
+
+        temporizadores.remove(id)
+        listaContenedoresTemporizadores = listaContenedoresTemporizadores.dropLast(1)
+        val keysOrdenadas = temporizadores.keys.toList()
+        val valoresOrdenados = temporizadores.values.toList()
+        val nuevoMapa: Map<String, List<Any>> = valoresOrdenados
+            .zip(listaContenedoresTemporizadores) // List<Pair<List<Any>, Pair<String,String>>>
+            .mapIndexed { index, pair ->
+                val (valorAntiguo, contenedor) = pair
+                val key = keysOrdenadas[index]
+                key to listOf(valorAntiguo[0], contenedor.first, contenedor.second, valorAntiguo[3], valorAntiguo[4], valorAntiguo[5], valorAntiguo[6])
+            }
+            .toMap()
+
+        when{
+            temporizadores.size > 3 ->{
+                cajaTemporizadoresCorriendoExtra.removeView(
+                    cajaTemporizadoresCorriendoExtra.getChildAt(cajaTemporizadoresCorriendoExtra.childCount - 1)
+                )
+            }
+            temporizadores.size == 3 ->{
+                cajaTemporizadoresCorriendoExtra.removeView(
+                    cajaTemporizadoresCorriendoExtra.getChildAt(cajaTemporizadoresCorriendoExtra.childCount - 1)
+                )
+                findViewById<HorizontalScrollView>(R.id.HSTemporizadoresExtra).visibility = View.GONE
+            }
+            temporizadores.size == 2 ->{
+                findViewById<FrameLayout>(R.id.LLTemporizadorActivo3).visibility = View.GONE
+            }
+            temporizadores.size == 1 ->{
+                findViewById<FrameLayout>(R.id.LLTemporizadorActivo2).visibility = View.GONE
+            }
+            temporizadores.size == 0 ->{
+                findViewById<FrameLayout>(R.id.LLTemporizadorActivo1).visibility = View.GONE
+                findViewById<View>(R.id.VBotonMinimizar).visibility = View.GONE
+                //findViewById<LinearLayout>(R.id.LLCajaTemporizadoresActivos).visibility = View.GONE
+                val fragmentactual = supportFragmentManager.findFragmentById(R.id.fragment_container)
+                if (fragmentactual is mojes) {
+                    fragmentactual.actualizarListaDeMojes()
+                }
+            }
+        }
+
+        TimerRepository.actualizarTemporizador(nuevoMapa)
+    }
 
     override fun onStart() {
         super.onStart()
+        val typedValue = android.util.TypedValue()
+        val typedValue2 = android.util.TypedValue()
+        val typedValue3 = android.util.TypedValue()
+        theme.resolveAttribute(com.google.android.material.R.attr.colorContainer, typedValue, true)
+        theme.resolveAttribute(android.R.attr.colorButtonNormal, typedValue2, true)
+        theme.resolveAttribute(com.google.android.material.R.attr.colorOnPrimary, typedValue3, true)
         // lifecycleScope asegura que la coroutine se cancela automáticamente
         lifecycleScope.launch {
             TimerRepository.temporizadorModificado.collect {datos ->
                 if (datos.isNotEmpty()){
-                    if (datos[1].toString() != "extra"){
-                        findViewById<TextView>(datos[1].toString().toInt()).text = datos[4].toString()
+                    val tipo = TimerRepository.pestanaOFlotando.value
+                    if (tipo == "flotandoGrande"){
+                        if (datos[1].toString() != "extra"){
+                            findViewById<TextView>(datos[1].toString().toInt()).text = datos[7].toString()
+                            if (datos[3].toString().toInt() < 240 && datos[3].toString().toInt() > 90) {
+                                findViewById<FrameLayout>(datos[5].toString().toInt()).backgroundTintList = ColorStateList.valueOf(typedValue.data)
+                            }else if (datos[3].toString().toInt() <= 90){
+                                findViewById<FrameLayout>(datos[5].toString().toInt()).backgroundTintList = ColorStateList.valueOf(typedValue2.data)
+                            }
+                        }else{
+                            if (datos[3].toString().toInt() < 240 && datos[3].toString().toInt() > 90) {
+                                findViewById<TextView>(datos[2].toString().toInt()).backgroundTintList = ColorStateList.valueOf(typedValue.data)
+                            }else if (datos[3].toString().toInt() <= 90){
+                                findViewById<TextView>(datos[2].toString().toInt()).backgroundTintList = ColorStateList.valueOf(typedValue2.data)
+                            }
+                        }
+                        findViewById<TextView>(datos[2].toString().toInt()).text = datos[0].toString()
+                    }else if (tipo == "flotandoPequeno"){
+                        val minimizado = findViewById<TextView>(R.id.TVTemporizadorMinimizado)
+                        minimizado.text = datos[0].toString()
+                        if (datos[3].toString().toInt() < 240 && datos[3].toString().toInt() > 90) {
+                            minimizado.backgroundTintList = ColorStateList.valueOf(typedValue.data)
+                            minimizado.setTextColor(typedValue3.data)
+                        }else if (datos[3].toString().toInt() <= 90){
+                            minimizado.backgroundTintList = ColorStateList.valueOf(typedValue2.data)
+                            minimizado.setTextColor(typedValue3.data)
+                        }
+                    }else{
+                        findViewById<TextView>(datos[4].toString().toInt()).text = datos[0].toString()
+                        if (datos[3].toString().toInt() < 240 && datos[3].toString().toInt() > 90) {
+                            findViewById<LinearLayout>(datos[6].toString().toInt()).backgroundTintList = ColorStateList.valueOf(typedValue.data)
+                        }else if (datos[3].toString().toInt() <= 90){
+                            findViewById<LinearLayout>(datos[6].toString().toInt()).backgroundTintList = ColorStateList.valueOf(typedValue2.data)
+                        }
                     }
-                    findViewById<TextView>(datos[2].toString().toInt()).text = datos[0].toString()
                 }
             }
         }
     }
-    fun cargarTemporizadoresActivos(){
+    fun cargarTemporizadoresAbrirAplicacion(){
+        val temporizadores = TimerRepository.temporizadores.value.toMutableMap()
+        if(temporizadores.isNotEmpty()){
 
+            lateinit var temporizadorCorriendo: FrameLayout
+            lateinit var contenedorTextoEtiqueta: TextView
+            lateinit var contenedorTiempo: TextView
+            listaContenedoresTemporizadores = emptyList()
+
+            findViewById<LinearLayout>(R.id.LLCajaTemporizadoresActivos).visibility = View.VISIBLE
+            findViewById<View>(R.id.VBotonMinimizar).visibility = View.VISIBLE
+            temporizadorCorriendo = findViewById<FrameLayout>(R.id.LLTemporizadorActivo1)
+            temporizadorCorriendo.visibility = View.VISIBLE
+            contenedorTextoEtiqueta = temporizadorCorriendo.findViewById<TextView>(R.id.TVTextoTemporizadorActivo1)
+            contenedorTiempo = temporizadorCorriendo.findViewById<TextView>(R.id.TVTiempoTemporizadorActivo1)
+            listaContenedoresTemporizadores = listaContenedoresTemporizadores + (contenedorTextoEtiqueta.id.toString() to contenedorTiempo.id.toString())
+
+            if (temporizadores.size > 1){
+                temporizadorCorriendo = findViewById<FrameLayout>(R.id.LLTemporizadorActivo2)
+                temporizadorCorriendo.visibility = View.VISIBLE
+                contenedorTextoEtiqueta = temporizadorCorriendo.findViewById<TextView>(R.id.TVTextoTemporizadorActivo2)
+                contenedorTiempo = temporizadorCorriendo.findViewById<TextView>(R.id.TVTiempoTemporizadorActivo2)
+                listaContenedoresTemporizadores = listaContenedoresTemporizadores + (contenedorTextoEtiqueta.id.toString() to contenedorTiempo.id.toString())
+            }
+            if (temporizadores.size > 2){
+                temporizadorCorriendo = findViewById<FrameLayout>(R.id.LLTemporizadorActivo3)
+                temporizadorCorriendo.visibility = View.VISIBLE
+                contenedorTextoEtiqueta = temporizadorCorriendo.findViewById<TextView>(R.id.TVTextoTemporizadorActivo3)
+                contenedorTiempo = temporizadorCorriendo.findViewById<TextView>(R.id.TVTiempoTemporizadorActivo3)
+                listaContenedoresTemporizadores = listaContenedoresTemporizadores + (contenedorTextoEtiqueta.id.toString() to contenedorTiempo.id.toString())
+            }
+            if (temporizadores.size > 3){
+                findViewById<HorizontalScrollView>(R.id.HSTemporizadoresExtra).visibility = View.VISIBLE
+                val cajaTemporizadoresCorriendoExtra = findViewById<LinearLayout>(R.id.LLCajaTemporizadoresExtraHorizontal)
+                val inflater = layoutInflater
+                val lista = temporizadores.toList()
+                for ((key, value) in lista.drop(3)) { // empieza desde el índice 4
+                    val nuevoTemporizadorExtra = inflater.inflate(R.layout.bloque_temporizador_extra_horizontal, cajaTemporizadoresCorriendoExtra, false)
+                    nuevoTemporizadorExtra.id = View.generateViewId()
+                    cajaTemporizadoresCorriendoExtra.addView(nuevoTemporizadorExtra)
+                    listaContenedoresTemporizadores = listaContenedoresTemporizadores + ("extra" to nuevoTemporizadorExtra.id.toString())
+                }
+            }
+            val keysOrdenadas = temporizadores.keys.toList()
+            val valoresOrdenados = temporizadores.values.toList()
+
+            val nuevoMapa: Map<String, List<Any>> = valoresOrdenados
+                .zip(listaContenedoresTemporizadores) // List<Pair<List<Any>, Pair<String,String>>>
+                .mapIndexed { index, pair ->
+                    val (valorAntiguo, contenedor) = pair
+                    val key = keysOrdenadas[index]
+                    key to listOf(valorAntiguo[0], contenedor.first, contenedor.second, valorAntiguo[3], valorAntiguo[4], valorAntiguo[5], valorAntiguo[6])
+                }
+                .toMap()
+            TimerRepository.actualizarTemporizador(nuevoMapa)
+            Log.d("DEBUG", "temporizadores: ${temporizadores.size}, listaContenedores: ${listaContenedoresTemporizadores.size}")
+        }
+    }
+    fun cargarTemporizadoresActivosMojes(visibles: String? = null){
+        if (visibles == "quitar"){
+            findViewById<HorizontalScrollView>(R.id.HSTemporizadoresExtra).visibility = View.GONE
+            findViewById<FrameLayout>(R.id.LLTemporizadorActivo1).visibility = View.GONE
+            findViewById<FrameLayout>(R.id.LLTemporizadorActivo2).visibility = View.GONE
+            findViewById<FrameLayout>(R.id.LLTemporizadorActivo3).visibility = View.GONE
+            findViewById<TextView>(R.id.TVTemporizadorMinimizado).visibility = View.GONE
+            findViewById<View>(R.id.VBotonMinimizar).visibility = View.GONE
+            return
+        }
+
+        val cantidadTemporizadores = TimerRepository.cantidadTemporizadores.value
+        if(cantidadTemporizadores > 0){
+            val tipo = TimerRepository.pestanaOFlotando.value
+            findViewById<View>(R.id.VBotonMinimizar).visibility = View.VISIBLE
+            if (tipo == "flotandoPequeno"){
+                findViewById<HorizontalScrollView>(R.id.HSTemporizadoresExtra).visibility = View.GONE
+                findViewById<FrameLayout>(R.id.LLTemporizadorActivo1).visibility = View.GONE
+                findViewById<FrameLayout>(R.id.LLTemporizadorActivo2).visibility = View.GONE
+                findViewById<FrameLayout>(R.id.LLTemporizadorActivo3).visibility = View.GONE
+                findViewById<TextView>(R.id.TVTemporizadorMinimizado).visibility = View.VISIBLE
+                findViewById<View>(R.id.VBotonMinimizar).rotation = 180f
+            }else{
+                findViewById<View>(R.id.VBotonMinimizar).rotation = 0f
+
+                findViewById<TextView>(R.id.TVTemporizadorMinimizado).visibility = View.GONE
+                when{
+                    cantidadTemporizadores < 2 -> {
+                        findViewById<FrameLayout>(R.id.LLTemporizadorActivo1).visibility = View.VISIBLE
+                    }
+                    cantidadTemporizadores < 3 -> {
+                        findViewById<FrameLayout>(R.id.LLTemporizadorActivo1).visibility = View.VISIBLE
+                        findViewById<FrameLayout>(R.id.LLTemporizadorActivo2).visibility = View.VISIBLE
+                    }
+                    cantidadTemporizadores < 4 -> {
+                        findViewById<FrameLayout>(R.id.LLTemporizadorActivo1).visibility = View.VISIBLE
+                        findViewById<FrameLayout>(R.id.LLTemporizadorActivo2).visibility = View.VISIBLE
+                        findViewById<FrameLayout>(R.id.LLTemporizadorActivo3).visibility = View.VISIBLE
+                    }
+                    else -> {
+                        findViewById<FrameLayout>(R.id.LLTemporizadorActivo1).visibility = View.VISIBLE
+                        findViewById<FrameLayout>(R.id.LLTemporizadorActivo2).visibility = View.VISIBLE
+                        findViewById<FrameLayout>(R.id.LLTemporizadorActivo3).visibility = View.VISIBLE
+                        findViewById<HorizontalScrollView>(R.id.HSTemporizadoresExtra).visibility = View.VISIBLE
+                    }
+                }
+            }
+        }
     }
     //funcion que quita el focus al oprimir en otros lados de la pantalla
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
